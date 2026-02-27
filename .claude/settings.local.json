@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "Bash(chmod:*)",
+      "Bash(/Users/lsh/Desktop/Wanted/gamyoen/gamyeon-spring-backend/gradlew:*)",
+      "Bash(docker-compose up:*)"
+    ]
+  }
+}
