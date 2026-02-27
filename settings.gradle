@@ -2,6 +2,6 @@ rootProject.name = 'gamyeon'
 
 include 'gamyeon-core'
 include 'gamyeon-gateway'
-include 'gamyeon-member-service'
 include 'gamyeon-interview-service'
 include 'gamyeon-report-service'
+include 'gamyeon-user-service'

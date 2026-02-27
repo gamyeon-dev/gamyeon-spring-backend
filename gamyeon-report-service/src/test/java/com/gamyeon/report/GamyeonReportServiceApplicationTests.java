@@ -1,10 +1,10 @@
-package com.gamyeon.memberservice;
+package com.gamyeon.report;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GamyeonMemberServiceApplicationTests {
+class GamyeonReportServiceApplicationTests {
 
     @Test
     void contextLoads() {
