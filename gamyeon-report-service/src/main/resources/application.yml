@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: gamyeon-report-service
+  profiles:
+    active: local # 기본값은 로컬
+
+---
+spring:
+  config:
+    activate:
+      on-profile: local
+  cloud:
+    consul:
+      host: localhost
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}:${random.value}
+        health-check-path: /actuator/health # Consul이 체크할 경로
+
+---
+spring:
+  config:
+    activate:
+      on-profile: docker
+  cloud:
+    consul:
+      host: consul # Docker Compose의 서비스명
+      port: 8500
+      discovery:
+        instance-id: ${spring.application.name}:${random.value}
+        prefer-ip-address: true # 컨테이너 내부 통신을 위해 IP 사용 권장
