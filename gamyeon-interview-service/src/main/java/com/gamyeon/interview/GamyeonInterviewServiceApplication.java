@@ -1,4 +1,4 @@
-package com.gamyeon.interviewservice;
+package com.gamyeon.interview;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

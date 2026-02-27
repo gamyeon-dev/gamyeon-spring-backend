@@ -1,13 +1,13 @@
-package com.gamyeon.reportservice;
+package com.gamyeon.user;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-public class GamyeonReportServiceApplication {
+public class GamyeonUserServiceApplication {
 
     public static void main(String[] args) {
-        SpringApplication.run(GamyeonReportServiceApplication.class, args);
+        SpringApplication.run(GamyeonUserServiceApplication.class, args);
     }
 
 }
