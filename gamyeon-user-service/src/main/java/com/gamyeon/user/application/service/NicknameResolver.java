@@ -1,10 +1,7 @@
-package com.gamyeon.user.service;
-
-import org.springframework.stereotype.Component;
+package com.gamyeon.user.application.service;
 
 import java.util.regex.Pattern;
 
-@Component
 public class NicknameResolver {
 
     private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{1,8}$");

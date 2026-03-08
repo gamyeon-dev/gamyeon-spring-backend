@@ -1,4 +1,4 @@
-package com.gamyeon.user.exception;
+package com.gamyeon.user.domain.user;
 
 import com.gamyeon.core.exception.ErrorCode;
 import org.springframework.http.HttpStatus;

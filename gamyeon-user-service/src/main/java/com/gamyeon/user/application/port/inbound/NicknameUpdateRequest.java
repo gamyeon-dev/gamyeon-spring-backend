@@ -1,4 +1,4 @@
-package com.gamyeon.user.dto.request;
+package com.gamyeon.user.application.port.inbound;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;

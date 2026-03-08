@@ -1,4 +1,4 @@
-package com.gamyeon.core.jwt;
+package com.gamyeon.user.infrastructure.jwt;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
@@ -6,8 +6,8 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class JwtProperties {
 
     private String secret;
-    private long accessTokenExpiry = 3_600_000L;   // 1시간 (ms)
-    private long refreshTokenExpiry = 604_800_000L; // 7일 (ms)
+    private long accessTokenExpiry = 3_600_000L;
+    private long refreshTokenExpiry = 604_800_000L;
 
     public String getSecret() {
         return secret;

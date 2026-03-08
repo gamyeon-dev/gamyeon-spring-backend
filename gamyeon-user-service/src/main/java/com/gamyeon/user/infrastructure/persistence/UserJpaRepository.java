@@ -1,12 +1,12 @@
-package com.gamyeon.user.repository;
+package com.gamyeon.user.infrastructure.persistence;
 
-import com.gamyeon.user.domain.OAuthProvider;
-import com.gamyeon.user.domain.User;
+import com.gamyeon.user.domain.user.OAuthProvider;
+import com.gamyeon.user.domain.user.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+interface UserJpaRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByProviderAndProviderId(OAuthProvider provider, String providerId);
 

@@ -1,4 +1,4 @@
-package com.gamyeon.core.jwt;
+package com.gamyeon.user.infrastructure.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

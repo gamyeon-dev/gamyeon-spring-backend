@@ -1,7 +1,8 @@
-package com.gamyeon.user.exception;
+package com.gamyeon.user.infrastructure.web;
 
 import com.gamyeon.core.response.ApiResponse;
 import com.gamyeon.core.response.FieldError;
+import com.gamyeon.user.domain.user.UserDomainException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -13,8 +14,8 @@ import java.util.List;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(UserException.class)
-    public ResponseEntity<ApiResponse<?>> handleUserException(UserException e) {
+    @ExceptionHandler(UserDomainException.class)
+    public ResponseEntity<ApiResponse<?>> handleUserDomainException(UserDomainException e) {
         return ResponseEntity
                 .status(e.getErrorCode().getStatus())
                 .body(ApiResponse.fail(e.getErrorCode()));

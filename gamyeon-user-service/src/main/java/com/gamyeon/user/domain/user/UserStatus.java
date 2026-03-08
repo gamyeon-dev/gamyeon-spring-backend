@@ -1,4 +1,4 @@
-package com.gamyeon.user.domain;
+package com.gamyeon.user.domain.user;
 
 public enum UserStatus {
     ACTIVE,

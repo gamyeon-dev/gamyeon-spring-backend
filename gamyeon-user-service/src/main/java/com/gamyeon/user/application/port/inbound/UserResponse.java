@@ -1,8 +1,8 @@
-package com.gamyeon.user.dto.response;
+package com.gamyeon.user.application.port.inbound;
 
-import com.gamyeon.user.domain.OAuthProvider;
-import com.gamyeon.user.domain.User;
-import com.gamyeon.user.domain.UserStatus;
+import com.gamyeon.user.domain.user.OAuthProvider;
+import com.gamyeon.user.domain.user.User;
+import com.gamyeon.user.domain.user.UserStatus;
 
 import java.time.LocalDateTime;
 
@@ -36,27 +36,10 @@ public class UserResponse {
         );
     }
 
-    public Long getId() {
-        return id;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public String getNickname() {
-        return nickname;
-    }
-
-    public OAuthProvider getProvider() {
-        return provider;
-    }
-
-    public UserStatus getStatus() {
-        return status;
-    }
-
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
+    public Long getId() { return id; }
+    public String getEmail() { return email; }
+    public String getNickname() { return nickname; }
+    public OAuthProvider getProvider() { return provider; }
+    public UserStatus getStatus() { return status; }
+    public LocalDateTime getCreatedAt() { return createdAt; }
 }

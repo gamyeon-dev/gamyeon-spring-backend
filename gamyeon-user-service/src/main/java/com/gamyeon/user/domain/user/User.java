@@ -1,8 +1,5 @@
-package com.gamyeon.user.domain;
+package com.gamyeon.user.domain.user;
 
-import com.gamyeon.core.domain.BaseTimeEntity;
-import com.gamyeon.user.exception.UserErrorCode;
-import com.gamyeon.user.exception.UserException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -67,7 +64,7 @@ public class User extends BaseTimeEntity {
 
     public void withdraw() {
         if (this.status == UserStatus.WITHDREW) {
-            throw new UserException(UserErrorCode.USER_ALREADY_WITHDREW);
+            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
         }
         this.status = UserStatus.WITHDREW;
         this.withdrawnAt = LocalDateTime.now();
@@ -75,7 +72,7 @@ public class User extends BaseTimeEntity {
 
     public void validateNickname(String nickname) {
         if (nickname == null || !NICKNAME_PATTERN.matcher(nickname).matches()) {
-            throw new UserException(UserErrorCode.INVALID_NICKNAME);
+            throw new UserDomainException(UserErrorCode.INVALID_NICKNAME);
         }
     }
 

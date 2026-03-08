@@ -1,4 +1,4 @@
-package com.gamyeon.core.domain;
+package com.gamyeon.user.domain.user;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
