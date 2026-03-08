@@ -35,3 +35,13 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### AI / Docs ###
+CLAUDE.md
+docs/
+
+### Secrets ###
+**/application-local.yml
+**/application-local.yaml
+**/.env
+**/.env.local
