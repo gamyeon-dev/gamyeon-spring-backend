@@ -1,0 +1,60 @@
+package com.gamyeon.user.infrastructure.web;
+
+import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.user.application.port.inbound.NicknameUpdateCommand;
+import com.gamyeon.user.application.port.inbound.UserInfo;
+import com.gamyeon.user.application.service.UserService;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/api/v1/users")
+public class UserController {
+
+    private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<UserResponse>> getMyInfo(
+            @AuthenticationPrincipal Long userId) {
+
+        UserInfo userInfo = userService.getMyInfo(userId);
+        return ResponseEntity.ok(ApiResponse.success(UserResponse.from(userInfo)));
+    }
+
+    @PatchMapping("/me/nickname")
+    public ResponseEntity<ApiResponse<UserResponse>> updateNickname(
+            @AuthenticationPrincipal Long userId,
+            @Valid @RequestBody NicknameUpdateRequest request) {
+
+        NicknameUpdateCommand command = NicknameUpdateCommand.of(userId, request.nickname());
+        UserInfo userInfo = userService.updateNickname(command);
+        return ResponseEntity.ok(ApiResponse.success(UserResponse.from(userInfo)));
+    }
+
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> withdraw(
+            @AuthenticationPrincipal Long userId) {
+
+        userService.withdraw(userId);
+        return ResponseEntity.ok(ApiResponse.success(null));
+    }
+
+    public record NicknameUpdateRequest(
+            @NotBlank
+            @Pattern(regexp = "^[가-힣a-zA-Z0-9]{1,8}$", message = "닉네임은 1~8자의 한글, 영어, 숫자만 허용됩니다.")
+            String nickname
+    ) {}
+}
