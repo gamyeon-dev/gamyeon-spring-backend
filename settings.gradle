@@ -1,7 +1,1 @@
 rootProject.name = 'gamyeon-backend'
-
-include 'gamyeon-core'
-include 'gamyeon-gateway'
-include 'gamyeon-user-service'
-include 'gamyeon-interview-service'
-include 'gamyeon-report-service'
