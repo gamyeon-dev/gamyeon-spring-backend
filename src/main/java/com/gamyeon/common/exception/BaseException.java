@@ -1,15 +1,16 @@
 package com.gamyeon.common.exception;
 
-public abstract class BaseException extends RuntimeException {
+import com.gamyeon.common.response.ErrorCode;
+import lombok.Getter;
+
+@Getter
+public class BaseException extends RuntimeException {
 
     private final ErrorCode errorCode;
 
-    protected BaseException(ErrorCode errorCode) {
+    public BaseException(ErrorCode errorCode) {
         super(errorCode.getMessage());
         this.errorCode = errorCode;
     }
 
-    public ErrorCode getErrorCode() {
-        return errorCode;
-    }
 }
