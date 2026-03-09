@@ -53,12 +53,7 @@ public class AuthService {
                     return userRepository.save(newUser);
                 });
 
-        if (user.isBanned()) {
-            throw new UserDomainException(UserErrorCode.USER_BANNED);
-        }
-        if (user.isWithdrew()) {
-            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
-        }
+        ensureLoginAllowed(user);
 
         return issueTokens(user);
     }
@@ -75,12 +70,7 @@ public class AuthService {
         User user = userRepository.findById(refreshToken.getUserId())
                 .orElseThrow(() -> new UserDomainException(UserErrorCode.USER_NOT_FOUND));
 
-        if (user.isBanned()) {
-            throw new UserDomainException(UserErrorCode.USER_BANNED);
-        }
-        if (user.isWithdrew()) {
-            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
-        }
+        ensureLoginAllowed(user);
 
         refreshTokenRepository.deleteByUserId(user.getId());
         return issueTokens(user);
@@ -88,6 +78,15 @@ public class AuthService {
 
     public void logout(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);
+    }
+
+    private void ensureLoginAllowed(User user) {
+        if (user.isBanned()) {
+            throw new UserDomainException(UserErrorCode.USER_BANNED);
+        }
+        if (user.isWithdrew()) {
+            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
+        }
     }
 
     private LoginResult issueTokens(User user) {

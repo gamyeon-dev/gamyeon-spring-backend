@@ -1,6 +1,6 @@
 package com.gamyeon.user.infrastructure.web;
 
-import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.response.SuccessResponse;
 import com.gamyeon.user.application.port.inbound.NicknameUpdateCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
 import com.gamyeon.user.application.service.UserService;
@@ -27,29 +27,29 @@ public class UserController {
     }
 
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<UserResponse>> getMyInfo(
+    public ResponseEntity<SuccessResponse<UserResponse>> getMyInfo(
             @AuthenticationPrincipal Long userId) {
 
         UserInfo userInfo = userService.getMyInfo(userId);
-        return ResponseEntity.ok(ApiResponse.success(UserResponse.from(userInfo)));
+        return ResponseEntity.ok(SuccessResponse.of(UserResponse.from(userInfo)));
     }
 
     @PatchMapping("/me/nickname")
-    public ResponseEntity<ApiResponse<UserResponse>> updateNickname(
+    public ResponseEntity<SuccessResponse<UserResponse>> updateNickname(
             @AuthenticationPrincipal Long userId,
             @Valid @RequestBody NicknameUpdateRequest request) {
 
         NicknameUpdateCommand command = NicknameUpdateCommand.of(userId, request.nickname());
         UserInfo userInfo = userService.updateNickname(command);
-        return ResponseEntity.ok(ApiResponse.success(UserResponse.from(userInfo)));
+        return ResponseEntity.ok(SuccessResponse.of(UserResponse.from(userInfo)));
     }
 
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> withdraw(
+    public ResponseEntity<SuccessResponse<Void>> withdraw(
             @AuthenticationPrincipal Long userId) {
 
         userService.withdraw(userId);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ResponseEntity.ok(SuccessResponse.of(null));
     }
 
     public record NicknameUpdateRequest(
