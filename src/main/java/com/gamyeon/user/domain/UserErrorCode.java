@@ -1,6 +1,6 @@
 package com.gamyeon.user.domain;
 
-import com.gamyeon.common.exception.ErrorCode;
+import com.gamyeon.common.response.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public enum UserErrorCode implements ErrorCode {
