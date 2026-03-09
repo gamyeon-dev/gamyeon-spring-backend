@@ -1,4 +1,4 @@
-package com.gamyeon.intv.application.dto.response;
+package com.gamyeon.intv.application.dto.result;
 
 import com.gamyeon.intv.domain.Intv;
 import com.gamyeon.intv.domain.IntvStatus;

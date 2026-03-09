@@ -2,7 +2,7 @@ package com.gamyeon.intv.domain;
 
 public enum IntvStatus {
 
-    CREATED,
+    READY,
     IN_PROGRESS,
     PAUSED,
     FINISHED
