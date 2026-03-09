@@ -44,11 +44,50 @@ public class IntvController {
         return ApiResponse.success(IntvSuccessCode.INTV_CREATED, IntvResponse.from(info));
     }
 
-    @PostMapping("/intvs")
-    public IntvResponse create(@RequestBody CreateIntvRequest request) {
-        Long userId = 1L; // 임시값
-        return IntvResponse.from(
-                createIntvUseCase.create(request.toCommand(userId))
-        );
+    @PatchMapping("/{intvId}")
+    public ResponseEntity<ApiResponse<IntvResponse>> update(@AuthenticationPrincipal Long userId,
+                                                            @PathVariable Long intvId,
+                                                            @RequestBody IntvRequest request) {
+
+        IntvInfo info = updateTitleUseCase.updateTitle(new UpdateIntvCommand(userId, intvId, request.title()));
+
+        return ApiResponse.success(IntvSuccessCode.INTV_CREATED, IntvResponse.from(info));
+    }
+
+
+    @PatchMapping("/{intvId}/start")
+    public ResponseEntity<ApiResponse<Void>> start(@AuthenticationPrincipal Long userId,
+                                                   @PathVariable Long intvId) {
+
+        changeStateUseCase.start(new ChangeStateIntvCommand(userId, intvId));
+
+        return ApiResponse.success(IntvSuccessCode.INTV_STARTED);
+    }
+
+    @PatchMapping("/{intvId}/pause")
+    public ResponseEntity<ApiResponse<Void>> pauseIntv(@AuthenticationPrincipal Long userId,
+                                                       @PathVariable Long intvId) {
+
+        changeStateUseCase.pause(new ChangeStateIntvCommand(userId, intvId));
+
+        return ApiResponse.success(IntvSuccessCode.INTV_PAUSED);
+    }
+
+    @PatchMapping("/{intvId}/resume")
+    public ResponseEntity<ApiResponse<Void>> resumeIntv(@AuthenticationPrincipal Long userId,
+                                                        @PathVariable Long intvId) {
+
+        changeStateUseCase.resume(new ChangeStateIntvCommand(userId, intvId));
+
+        return ApiResponse.success(IntvSuccessCode.INTV_RESUMED);
+    }
+
+    @PatchMapping("/{intvId}/finish")
+    public ResponseEntity<ApiResponse<Void>> finishIntv(@AuthenticationPrincipal Long userId,
+                                                        @PathVariable Long intvId) {
+
+        changeStateUseCase.finish(new ChangeStateIntvCommand(userId, intvId));
+
+        return ApiResponse.success(IntvSuccessCode.INTV_FINISHED);
     }
 }
