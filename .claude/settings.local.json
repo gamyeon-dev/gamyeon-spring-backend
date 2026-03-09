@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add src/main/java/com/gamyeon/common/response/ApiResponse.java)",
+      "Bash(git add src/main/java/com/gamyeon/user/application/service/AuthService.java src/main/java/com/gamyeon/user/infrastructure/security/InternalApiKeyFilter.java src/main/java/com/gamyeon/user/infrastructure/security/JwtAuthenticationFilter.java src/main/java/com/gamyeon/user/infrastructure/security/SecurityConfig.java src/main/java/com/gamyeon/user/infrastructure/web/AuthController.java src/main/java/com/gamyeon/user/infrastructure/web/GlobalExceptionHandler.java src/main/java/com/gamyeon/user/infrastructure/web/UserController.java src/main/java/com/gamyeon/common/response/ErrorResponse.java src/main/java/com/gamyeon/common/response/SuccessResponse.java src/main/java/com/gamyeon/common/web/HealthController.java src/test/resources/application-test.yml src/test/java/com/gamyeon/user/infrastructure/SecurityIntegrationTest.java CLAUDE.md docs/work-phases.md)",
+      "Bash(git add src/main/java/com/gamyeon/user/application/service/AuthService.java src/main/java/com/gamyeon/user/infrastructure/security/InternalApiKeyFilter.java src/main/java/com/gamyeon/user/infrastructure/security/JwtAuthenticationFilter.java src/main/java/com/gamyeon/user/infrastructure/security/SecurityConfig.java src/main/java/com/gamyeon/user/infrastructure/web/AuthController.java src/main/java/com/gamyeon/user/infrastructure/web/GlobalExceptionHandler.java src/main/java/com/gamyeon/user/infrastructure/web/UserController.java src/main/java/com/gamyeon/common/response/ErrorResponse.java src/main/java/com/gamyeon/common/response/SuccessResponse.java src/main/java/com/gamyeon/common/web/HealthController.java src/test/resources/application-test.yml src/test/java/com/gamyeon/user/infrastructure/SecurityIntegrationTest.java)"
+    ]
+  }
+}

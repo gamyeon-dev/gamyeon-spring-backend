@@ -1,6 +1,6 @@
 package com.gamyeon.user.infrastructure.web;
 
-import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.response.SuccessResponse;
 import com.gamyeon.user.application.port.inbound.LoginResult;
 import com.gamyeon.user.application.port.inbound.OAuthLoginCommand;
 import com.gamyeon.user.application.service.AuthService;
@@ -28,30 +28,30 @@ public class AuthController {
     }
 
     @PostMapping("/login/{provider}")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
+    public ResponseEntity<SuccessResponse<LoginResponse>> login(
             @PathVariable String provider,
             @Valid @RequestBody LoginRequest request) {
 
         OAuthProvider oAuthProvider = parseProvider(provider);
         OAuthLoginCommand command = OAuthLoginCommand.of(oAuthProvider, request.authorizationCode());
         LoginResult result = authService.login(command);
-        return ResponseEntity.ok(ApiResponse.success(LoginResponse.from(result)));
+        return ResponseEntity.ok(SuccessResponse.of(LoginResponse.from(result)));
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<ApiResponse<LoginResponse>> reissue(
+    public ResponseEntity<SuccessResponse<LoginResponse>> reissue(
             @Valid @RequestBody ReissueRequest request) {
 
         LoginResult result = authService.reissue(request.refreshToken());
-        return ResponseEntity.ok(ApiResponse.success(LoginResponse.from(result)));
+        return ResponseEntity.ok(SuccessResponse.of(LoginResponse.from(result)));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(
+    public ResponseEntity<SuccessResponse<Void>> logout(
             @AuthenticationPrincipal Long userId) {
 
         authService.logout(userId);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ResponseEntity.ok(SuccessResponse.of(null));
     }
 
     private OAuthProvider parseProvider(String provider) {

@@ -37,7 +37,7 @@ out/
 .vscode/
 
 ### Docs ###
-CLAUDE.md
+.md
 docs/
 
 ### Secrets ###

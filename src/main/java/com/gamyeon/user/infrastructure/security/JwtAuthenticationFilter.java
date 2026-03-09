@@ -1,7 +1,7 @@
 package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.response.ErrorResponse;
 import com.gamyeon.user.domain.UserErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
@@ -22,7 +22,8 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final List<String> PUBLIC_PATHS = List.of(
-            "/api/v1/auth/**",
+            "/api/v1/auth/login/**",
+            "/api/v1/auth/reissue",
             "/api/internal/**",
             "/health",
             "/actuator/**"
@@ -78,6 +79,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         response.setStatus(errorCode.getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write(objectMapper.writeValueAsString(ApiResponse.fail(errorCode)));
+        response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.of(errorCode)));
     }
 }
