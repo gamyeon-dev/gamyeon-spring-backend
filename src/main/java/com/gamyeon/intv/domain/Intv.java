@@ -25,8 +25,6 @@ public class Intv extends BaseEntity {
 
     private String title;
 
-    private Long questionSetId;
-
     @Enumerated(EnumType.STRING)
     private IntvStatus status;
 
@@ -47,7 +45,7 @@ public class Intv extends BaseEntity {
     private Intv(Long userId, String title) {
         this.userId = userId;
         this.title = title;
-        this.status = IntvStatus.CREATED;
+        this.status = IntvStatus.READY;
         this.totalPausedSeconds = 0L;
     }
 
@@ -56,10 +54,13 @@ public class Intv extends BaseEntity {
         return new Intv(userId, title);
     }
 
+    // 제목 수정
+    public void updateTitle(String title) {
+        this.title = title;
+    }
+
     // 시작
-    public void start(Long userId, Long questionSetId) {
-        this.userId = userId;
-        this.questionSetId = questionSetId;
+    public void start() {
         this.startedAt = LocalDateTime.now();
         this.status = IntvStatus.IN_PROGRESS;
     }

@@ -1,6 +1,6 @@
 package com.gamyeon.intv.presentation.dto.response;
 
-import com.gamyeon.intv.application.dto.response.IntvInfo;
+import com.gamyeon.intv.application.dto.result.IntvInfo;
 
 public record IntvResponse(
         Long intvId,
