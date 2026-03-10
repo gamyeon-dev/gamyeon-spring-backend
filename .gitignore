@@ -39,6 +39,10 @@ out/
 ### Docs ###
 .md
 docs/
+.claude/settings.local.json
+AGENTS.md
+CLAUDE.md
+memory/MEMORY.md
 
 ### Secrets ###
 **/application-local.yml
