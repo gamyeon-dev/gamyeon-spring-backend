@@ -38,6 +38,5 @@ jobs:
             docker stop spring-server || true
             docker rm spring-server || true
             docker run -d --name spring-server -p 8080:8080 \
-              --network app_default \
               -e CONSUL_HOST=consul \
               ${{ vars.DOCKERHUB_USERNAME }}/spring-server:latest
