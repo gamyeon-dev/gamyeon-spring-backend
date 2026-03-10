@@ -39,5 +39,5 @@ jobs:
             docker rm gamyeon-spring || true
             docker run -d --name gamyeon-spring -p 8080:8080 \
               -e CONSUL_HOST=consul \
-              --env-flie
+              --env-file
               ${{ vars.DOCKERHUB_USERNAME }}/gamyeon-spring:latest
