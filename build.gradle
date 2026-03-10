@@ -15,7 +15,7 @@ java {
 }
 
 ext {
-    set('springCloudVersion', "2024.0.0") // Spring Boot 3.4.x와 호환되는 버전
+    set('springCloudVersion', "2025.0.0") // Spring Boot 3.4.x와 호환되는 버전
 }
 
 repositories {
