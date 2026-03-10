@@ -41,11 +41,8 @@ public class UserService {
     private User findActiveUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserDomainException(UserErrorCode.USER_NOT_FOUND));
-        if (user.isBanned()) {
-            throw new UserDomainException(UserErrorCode.USER_BANNED);
-        }
-        if (user.isWithdrew()) {
-            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
+        if (user.isBanned() || user.isWithdrew()) {
+            throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
         }
         return user;
     }

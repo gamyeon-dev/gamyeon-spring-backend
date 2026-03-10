@@ -1,12 +1,12 @@
 package com.gamyeon.user.infrastructure.web;
 
+import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.exception.CommonException;
 import com.gamyeon.common.response.SuccessResponse;
 import com.gamyeon.user.application.port.inbound.LoginResult;
 import com.gamyeon.user.application.port.inbound.OAuthLoginCommand;
 import com.gamyeon.user.application.service.AuthService;
 import com.gamyeon.user.domain.OAuthProvider;
-import com.gamyeon.user.domain.UserDomainException;
-import com.gamyeon.user.domain.UserErrorCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -58,7 +58,7 @@ public class AuthController {
         return switch (provider.toLowerCase()) {
             case "google" -> OAuthProvider.GOOGLE;
             case "kakao" -> OAuthProvider.KAKAO;
-            default -> throw new UserDomainException(UserErrorCode.INVALID_OAUTH_PROVIDER);
+            default -> throw new CommonException(CommonErrorCode.INVALID_INPUT);
         };
     }
 

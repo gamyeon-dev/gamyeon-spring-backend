@@ -1,9 +1,9 @@
 package com.gamyeon.user.infrastructure.external;
 
+import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.exception.CommonException;
 import com.gamyeon.user.application.port.outbound.OAuthPort;
 import com.gamyeon.user.domain.OAuthProvider;
-import com.gamyeon.user.domain.UserDomainException;
-import com.gamyeon.user.domain.UserErrorCode;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -34,7 +34,7 @@ public class OAuthAdapter implements OAuthPort {
                 case KAKAO -> fetchKakaoAccessToken(authorizationCode);
             };
         } catch (WebClientResponseException e) {
-            throw new UserDomainException(UserErrorCode.OAUTH_AUTHENTICATION_FAILED);
+            throw new CommonException(CommonErrorCode.UNAUTHORIZED);
         }
     }
 
@@ -46,7 +46,7 @@ public class OAuthAdapter implements OAuthPort {
                 case KAKAO -> fetchKakaoUserInfo(accessToken);
             };
         } catch (WebClientResponseException e) {
-            throw new UserDomainException(UserErrorCode.OAUTH_AUTHENTICATION_FAILED);
+            throw new CommonException(CommonErrorCode.UNAUTHORIZED);
         }
     }
 
