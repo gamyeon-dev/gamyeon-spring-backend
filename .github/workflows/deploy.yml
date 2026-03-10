@@ -1,0 +1,43 @@
+name: Spring Boot CI/CD
+
+on:
+  push:
+    branches: [ "chore/cd" ] # 배포 대상 브랜치
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Docker Hub 로그인
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ vars.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      # 2. Docker 이미지 빌드 및 푸시
+      - name: Build and Push Docker Image
+        run: |
+          docker build -t ${{ vars.DOCKERHUB_USERNAME }}/spring-server:latest .
+          docker push ${{ vars.DOCKERHUB_USERNAME }}/spring-server:latest
+
+      # 3. EC2 접속 및 배포 실행
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ vars.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ec2-user/app
+            # 최신 이미지 풀
+            docker pull ${{ vars.DOCKERHUB_USERNAME }}/spring-server:latest
+            # 기존 컨테이너 중지 및 삭제 후 재실행 (또는 docker-compose up -d)
+            docker stop spring-server || true
+            docker rm spring-server || true
+            docker run -d --name spring-server -p 8080:8080 \
+              --network app_default \
+              -e CONSUL_HOST=consul \
+              ${{ vars.DOCKERHUB_USERNAME }}/spring-server:latest
