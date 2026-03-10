@@ -24,7 +24,7 @@ server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: GAMYEON-BACKEND-SECURE-JWT-KEY-2026-03-10-FOR-AUTHENTICATION-KEY
   access-token-expiry: 3600000
   refresh-token-expiry: 604800000
 
