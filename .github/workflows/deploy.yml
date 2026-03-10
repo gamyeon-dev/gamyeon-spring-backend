@@ -35,6 +35,7 @@ jobs:
             
             # [수정] 1. GitHub Secrets의 값으로 .env 파일을 강제 생성 (덮어쓰기)
             echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            echo "INTERNAL_API_KEY=${{ secrets.INTERNAL_API_KEY }}" >> .env
             echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
             echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
             echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
