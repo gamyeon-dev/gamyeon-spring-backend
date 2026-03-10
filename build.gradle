@@ -14,6 +14,10 @@ java {
     }
 }
 
+ext {
+    set('springCloudVersion', "2024.0.0") // Spring Boot 3.4.x와 호환되는 버전
+}
+
 repositories {
     mavenCentral()
 }
@@ -51,6 +55,12 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+dependencyManagement {
+    imports {
+        mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+    }
 }
 
 tasks.named('test') {

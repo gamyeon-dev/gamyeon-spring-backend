@@ -1,6 +1,8 @@
 package com.gamyeon.user.infrastructure.web;
 
 import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.response.SuccessCode;
+import com.gamyeon.common.response.TempCode;
 import com.gamyeon.user.application.port.inbound.LoginResult;
 import com.gamyeon.user.application.port.inbound.OAuthLoginCommand;
 import com.gamyeon.user.application.service.AuthService;
@@ -35,7 +37,7 @@ public class AuthController {
         OAuthProvider oAuthProvider = parseProvider(provider);
         OAuthLoginCommand command = OAuthLoginCommand.of(oAuthProvider, request.authorizationCode());
         LoginResult result = authService.login(command);
-        return ResponseEntity.ok(ApiResponse.success(LoginResponse.from(result)));
+        return ApiResponse.success(new TempCode(), LoginResponse.from(result));
     }
 
     @PostMapping("/reissue")
@@ -43,7 +45,7 @@ public class AuthController {
             @Valid @RequestBody ReissueRequest request) {
 
         LoginResult result = authService.reissue(request.refreshToken());
-        return ResponseEntity.ok(ApiResponse.success(LoginResponse.from(result)));
+        return ApiResponse.success(new TempCode(), LoginResponse.from(result));
     }
 
     @PostMapping("/logout")
@@ -51,7 +53,7 @@ public class AuthController {
             @AuthenticationPrincipal Long userId) {
 
         authService.logout(userId);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ApiResponse.success(null);
     }
 
     private OAuthProvider parseProvider(String provider) {

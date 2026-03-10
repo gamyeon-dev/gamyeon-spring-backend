@@ -1,6 +1,7 @@
 package com.gamyeon.user.infrastructure.web;
 
 import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.response.TempCode;
 import com.gamyeon.user.application.port.inbound.NicknameUpdateCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
 import com.gamyeon.user.application.service.UserService;
@@ -31,7 +32,7 @@ public class UserController {
             @AuthenticationPrincipal Long userId) {
 
         UserInfo userInfo = userService.getMyInfo(userId);
-        return ResponseEntity.ok(ApiResponse.success(UserResponse.from(userInfo)));
+        return ApiResponse.success(new TempCode(), UserResponse.from(userInfo));
     }
 
     @PatchMapping("/me/nickname")
@@ -41,7 +42,7 @@ public class UserController {
 
         NicknameUpdateCommand command = NicknameUpdateCommand.of(userId, request.nickname());
         UserInfo userInfo = userService.updateNickname(command);
-        return ResponseEntity.ok(ApiResponse.success(UserResponse.from(userInfo)));
+        return ApiResponse.success(new TempCode(), UserResponse.from(userInfo));
     }
 
     @DeleteMapping("/me")
@@ -49,7 +50,7 @@ public class UserController {
             @AuthenticationPrincipal Long userId) {
 
         userService.withdraw(userId);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        return ApiResponse.success(new TempCode(),null);
     }
 
     public record NicknameUpdateRequest(

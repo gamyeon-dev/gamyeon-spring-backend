@@ -2,6 +2,8 @@ package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.response.ErrorCode;
+import com.gamyeon.common.response.ErrorDetail;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -40,11 +42,11 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
             response.setStatus(HttpStatus.FORBIDDEN.value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-            response.getWriter().write(
-                    objectMapper.writeValueAsString(
-                            ApiResponse.fail("FORBIDDEN", "유효하지 않은 내부 API 키입니다.")
-                    )
-            );
+//            response.getWriter().write(
+//                    objectMapper.writeValueAsString(
+//                            ApiResponse.fail("FORBIDDEN", ErrorDetail"유효하지 않은 내부 API 키입니다.")
+//                    )
+//            );
             return;
         }
         filterChain.doFilter(request, response);
