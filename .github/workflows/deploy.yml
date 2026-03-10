@@ -32,12 +32,22 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ec2-user/app
-            # 최신 이미지 풀
+            
+            # [수정] 1. GitHub Secrets의 값으로 .env 파일을 강제 생성 (덮어쓰기)
+            echo "INTERNAL_API_KEY=${{ secrets.INTERNAL_API_KEY }}" > .env
+            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
+            # 필요한 모든 환경변수를 여기에 추가하세요!
+            
+            # [수정] 2. 최신 이미지 풀
             docker pull ${{ vars.DOCKERHUB_USERNAME }}/gamyeon-spring:latest
-            # 기존 컨테이너 중지 및 삭제 후 재실행 (또는 docker-compose up -d)
+            
+            # [수정] 3. 기존 컨테이너 중지 및 삭제
             docker stop gamyeon-spring || true
             docker rm gamyeon-spring || true
+            
+            # [수정] 4. 실행 (이미 .env 파일이 생성되었으므로 --env-file .env 정상 작동)
             docker run -d --name gamyeon-spring -p 8080:8080 \
+              --network app_default \
               -e CONSUL_HOST=consul \
               --env-file .env \
               ${{ vars.DOCKERHUB_USERNAME }}/gamyeon-spring:latest
