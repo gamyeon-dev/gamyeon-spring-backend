@@ -101,5 +101,4 @@ public class Intv extends BaseEntity {
         // TODO : 중단 시간 음수 검증, 중단된 면접 종료 가능하게 할 지 정책 검토
 
     }
-
 }
