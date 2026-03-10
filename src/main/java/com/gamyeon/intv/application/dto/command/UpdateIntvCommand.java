@@ -1,9 +1,8 @@
 package com.gamyeon.intv.application.dto.command;
 
-import jakarta.validation.constraints.NotBlank;
-
-public record CreateIntvCommand(
+public record UpdateIntvCommand(
         Long userId,
+        Long intvId,
         String title
-        ) {
+) {
 }
