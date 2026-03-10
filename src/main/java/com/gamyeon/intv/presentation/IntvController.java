@@ -10,7 +10,7 @@ import com.gamyeon.intv.application.usecase.UpdateTitleUseCase;
 import com.gamyeon.intv.domain.IntvSuccessCode;
 import com.gamyeon.intv.presentation.dto.request.IntvRequest;
 import com.gamyeon.intv.presentation.dto.response.IntvResponse;
-import com.gamyeon.user.application.port.inbound.UserInfo;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -37,9 +37,9 @@ public class IntvController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<IntvResponse>> create(@AuthenticationPrincipal Long userId,
-                                                            @RequestBody IntvRequest request) {
+                                                            @Valid @RequestBody IntvRequest request) {
 
-        IntvInfo info = createUseCase.create(request.toCommand(userId, request.title()));
+        IntvInfo info = createUseCase.create(request.toCreateCommand(userId));
 
         return ApiResponse.success(IntvSuccessCode.INTV_CREATED, IntvResponse.from(info));
     }
@@ -47,11 +47,13 @@ public class IntvController {
     @PatchMapping("/{intvId}")
     public ResponseEntity<ApiResponse<IntvResponse>> update(@AuthenticationPrincipal Long userId,
                                                             @PathVariable Long intvId,
-                                                            @RequestBody IntvRequest request) {
+                                                            @Valid @RequestBody IntvRequest request) {
 
-        IntvInfo info = updateTitleUseCase.updateTitle(new UpdateIntvCommand(userId, intvId, request.title()));
+        IntvInfo info = updateTitleUseCase.updateTitle(request.toUpdateCommand(userId, intvId));
 
-        return ApiResponse.success(IntvSuccessCode.INTV_CREATED, IntvResponse.from(info));
+        updateTitleUseCase.updateTitle(new UpdateIntvCommand(userId, intvId, request.title()));
+
+        return ApiResponse.success(IntvSuccessCode.INTV_UPDATED, IntvResponse.from(info));
     }
 
 
