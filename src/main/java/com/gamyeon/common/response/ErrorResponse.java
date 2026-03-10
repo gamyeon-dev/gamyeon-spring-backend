@@ -1,7 +1,6 @@
 package com.gamyeon.common.response;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import com.gamyeon.common.exception.ErrorCode;
 
 import java.util.List;
 

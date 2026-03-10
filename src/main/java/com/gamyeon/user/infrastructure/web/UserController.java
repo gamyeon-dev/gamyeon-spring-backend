@@ -3,7 +3,8 @@ package com.gamyeon.user.infrastructure.web;
 import com.gamyeon.common.response.SuccessResponse;
 import com.gamyeon.user.application.port.inbound.NicknameUpdateCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
-import com.gamyeon.user.application.service.UserService;
+import com.gamyeon.user.application.port.inbound.UserUseCase;
+import com.gamyeon.user.domain.UserSuccessCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
@@ -20,17 +21,17 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserService userService;
+    private final UserUseCase userUseCase;
 
-    public UserController(UserService userService) {
-        this.userService = userService;
+    public UserController(UserUseCase userUseCase) {
+        this.userUseCase = userUseCase;
     }
 
     @GetMapping("/me")
     public ResponseEntity<SuccessResponse<UserResponse>> getMyInfo(
             @AuthenticationPrincipal Long userId) {
 
-        UserInfo userInfo = userService.getMyInfo(userId);
+        UserInfo userInfo = userUseCase.getMyInfo(userId);
         return ResponseEntity.ok(SuccessResponse.of(UserResponse.from(userInfo)));
     }
 
@@ -40,16 +41,16 @@ public class UserController {
             @Valid @RequestBody NicknameUpdateRequest request) {
 
         NicknameUpdateCommand command = NicknameUpdateCommand.of(userId, request.nickname());
-        UserInfo userInfo = userService.updateNickname(command);
-        return ResponseEntity.ok(SuccessResponse.of(UserResponse.from(userInfo)));
+        UserInfo userInfo = userUseCase.updateNickname(command);
+        return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_NICKNAME_UPDATED, UserResponse.from(userInfo)));
     }
 
     @DeleteMapping("/me")
     public ResponseEntity<SuccessResponse<Void>> withdraw(
             @AuthenticationPrincipal Long userId) {
 
-        userService.withdraw(userId);
-        return ResponseEntity.ok(SuccessResponse.of(null));
+        userUseCase.withdraw(userId);
+        return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_WITHDREW, null));
     }
 
     public record NicknameUpdateRequest(

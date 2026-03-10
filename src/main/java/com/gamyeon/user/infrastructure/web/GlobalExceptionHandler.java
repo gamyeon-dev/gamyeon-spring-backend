@@ -35,8 +35,8 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
-        return ResponseEntity.status(404)
-                .body(ErrorResponse.of(CommonErrorCode.INVALID_INPUT.getCode(), "요청한 리소스를 찾을 수 없습니다."));
+        return ResponseEntity.status(CommonErrorCode.NOT_FOUND.getStatus())
+                .body(ErrorResponse.of(CommonErrorCode.NOT_FOUND));
     }
 
     @ExceptionHandler(Exception.class)

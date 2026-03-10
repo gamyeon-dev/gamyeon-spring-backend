@@ -32,6 +32,10 @@ public class SuccessResponse<T> {
         return new SuccessResponse<>(true, code, message, data);
     }
 
+    public static <T> SuccessResponse<T> of(SuccessCode successCode, T data) {
+        return new SuccessResponse<>(true, successCode.getCode(), successCode.getMessage(), data);
+    }
+
     public boolean isSuccess() {
         return success;
     }
