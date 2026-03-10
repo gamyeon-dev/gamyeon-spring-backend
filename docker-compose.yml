@@ -1,0 +1,8 @@
+services:
+  spring-app:
+    image: zzang6535/gamyeon-spring:latest
+    container_name: SPRING-SERVER
+    environment:
+      - CONSUL_HOST=consul
+    ports:
+      - "8080:8080"

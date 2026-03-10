@@ -16,15 +16,13 @@ spring:
     properties:
       hibernate:
         format_sql: true
-  config:
-    import: "optional:consul:localhost:8500" # Consul 주소
-    cloud:
-      consul:
-        host: host.docker.internal
-        port: 8500
-        discovery:
-          register: true
-          instance-id: ${spring.application.name}:${random.value}
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: 8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}:${random.value}
 
 server:
   port: 8080
