@@ -2,7 +2,7 @@ spring:
   profiles:
     active: prod
   application:
-    name: gamyeon-backend
+    name: GAMYEON_SPRING_SERVER
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -25,6 +25,15 @@ spring:
         instance-id: ${spring.application.name}:${random.value}
   config:
     import: "optional:consul:"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # health와 info 엔드포인트를 노출
+  endpoint:
+    health:
+      show-details: always   # 상태 체크 시 자세한 내용을 보여줌
 
 server:
   port: 8080
