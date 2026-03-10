@@ -23,6 +23,8 @@ spring:
       discovery:
         register: true
         instance-id: ${spring.application.name}:${random.value}
+  config:
+    import: "optional:consul:"
 
 server:
   port: 8080
