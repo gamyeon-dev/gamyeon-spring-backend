@@ -1,5 +1,5 @@
 services:
-  spring-app:
+  spring-server:
     image: zzang6535/gamyeon-spring:latest
     container_name: SPRING-SERVER
     environment:

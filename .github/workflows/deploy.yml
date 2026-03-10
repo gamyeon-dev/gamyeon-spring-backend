@@ -58,4 +58,4 @@ jobs:
             
             # [중요] docker-compose로 한꺼번에 실행 (이미지 풀링 포함)
             docker-compose pull
-            docker-compose up -d --build
+            docker-compose up -d --build --no-deps spring-server
