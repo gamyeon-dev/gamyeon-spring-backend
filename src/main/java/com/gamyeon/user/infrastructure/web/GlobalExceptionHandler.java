@@ -2,6 +2,7 @@
 package com.gamyeon.user.infrastructure.web;
 
 import com.gamyeon.common.exception.BaseException;
+import com.gamyeon.common.exception.CommonErrorCode;
 import com.gamyeon.common.response.ErrorResponse;
 import com.gamyeon.common.response.FieldError;
 import org.springframework.http.ResponseEntity;
@@ -35,12 +36,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(NoResourceFoundException.class)
     public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
         return ResponseEntity.status(404)
-                .body(ErrorResponse.of("NOT_FOUND", "요청한 리소스를 찾을 수 없습니다."));
+                .body(ErrorResponse.of(CommonErrorCode.INVALID_INPUT.getCode(), "요청한 리소스를 찾을 수 없습니다."));
     }
 
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleException(Exception e) {
         return ResponseEntity.internalServerError()
-                .body(ErrorResponse.of("INTERNAL_SERVER_ERROR", "서버 내부 오류가 발생했습니다."));
+                .body(ErrorResponse.of(CommonErrorCode.INTERNAL_ERROR));
     }
 }

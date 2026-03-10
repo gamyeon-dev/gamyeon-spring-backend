@@ -7,7 +7,7 @@
 
 ## 프로젝트 개요
 
-면접 연습 서비스 **가연(Gamyeon)** 의 Spring Boot 백엔드.
+면접 연습 서비스 **가면(Gamyeon)** 의 Spring Boot 백엔드.
 
 - **Framework**: Spring Boot 3.5.11, Java 17
 - **Build**: Gradle (단일 모듈)
@@ -244,4 +244,5 @@ A: infrastructure/di/ → @Configuration 클래스
 | `docs/user-design.md` | 유저 도메인 설계 (OAuth, JWT, 닉네임 정책) |
 | `docs/security-design.md` | Spring Security 필터 체인, JWT/내부 API Key 설계 |
 | `docs/ai-integration-design.md` | AI 서버 연동, 비동기 웹훅, 재시도 정책 |
-| `docs/work-phases.md` | 구현 단계별 작업 명세 |
+| `docs/work-phases.md` | 구현 단계별 작업 명세 (담당 범위 포함) |
+| `docs/api-convention.md` | API 경로 체계, 응답 포맷, 도메인별 에러 코드 전체 목록 |

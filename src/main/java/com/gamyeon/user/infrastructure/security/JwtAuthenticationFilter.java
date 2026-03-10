@@ -1,8 +1,9 @@
 package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.exception.ErrorCode;
 import com.gamyeon.common.response.ErrorResponse;
-import com.gamyeon.user.domain.UserErrorCode;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -51,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            writeError(response, UserErrorCode.INVALID_TOKEN);
+            writeError(response, CommonErrorCode.INVALID_TOKEN);
             return;
         }
 
@@ -69,13 +70,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {
-            writeError(response, UserErrorCode.EXPIRED_TOKEN);
+            writeError(response, CommonErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
-            writeError(response, UserErrorCode.INVALID_TOKEN);
+            writeError(response, CommonErrorCode.INVALID_TOKEN);
         }
     }
 
-    private void writeError(HttpServletResponse response, UserErrorCode errorCode) throws IOException {
+    private void writeError(HttpServletResponse response, ErrorCode errorCode) throws IOException {
         response.setStatus(errorCode.getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());

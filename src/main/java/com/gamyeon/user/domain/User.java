@@ -64,7 +64,7 @@ public class User extends BaseTimeEntity {
 
     public void withdraw() {
         if (this.status == UserStatus.WITHDREW) {
-            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
+            throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
         }
         this.status = UserStatus.WITHDREW;
         this.withdrawnAt = LocalDateTime.now();
@@ -72,7 +72,7 @@ public class User extends BaseTimeEntity {
 
     public void validateNickname(String nickname) {
         if (nickname == null || !NICKNAME_PATTERN.matcher(nickname).matches()) {
-            throw new UserDomainException(UserErrorCode.INVALID_NICKNAME);
+            throw new UserDomainException(UserErrorCode.INVALID_NICKNAME_FORMAT);
         }
     }
 

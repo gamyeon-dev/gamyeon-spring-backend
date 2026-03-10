@@ -1,5 +1,7 @@
 package com.gamyeon.user.application.service;
 
+import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.exception.CommonException;
 import com.gamyeon.user.application.port.inbound.LoginResult;
 import com.gamyeon.user.application.port.inbound.OAuthLoginCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
@@ -60,11 +62,11 @@ public class AuthService {
 
     public LoginResult reissue(String refreshTokenValue) {
         RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(() -> new UserDomainException(UserErrorCode.TOKEN_REISSUE_FAILED));
+                .orElseThrow(() -> new CommonException(CommonErrorCode.EXPIRED_TOKEN));
 
         if (refreshToken.isExpired()) {
             refreshTokenRepository.deleteByUserId(refreshToken.getUserId());
-            throw new UserDomainException(UserErrorCode.TOKEN_REISSUE_FAILED);
+            throw new CommonException(CommonErrorCode.EXPIRED_TOKEN);
         }
 
         User user = userRepository.findById(refreshToken.getUserId())
@@ -81,11 +83,8 @@ public class AuthService {
     }
 
     private void ensureLoginAllowed(User user) {
-        if (user.isBanned()) {
-            throw new UserDomainException(UserErrorCode.USER_BANNED);
-        }
-        if (user.isWithdrew()) {
-            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
+        if (user.isBanned() || user.isWithdrew()) {
+            throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
         }
     }
 
