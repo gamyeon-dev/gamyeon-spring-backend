@@ -2,13 +2,14 @@ package com.gamyeon.user.application.service;
 
 import com.gamyeon.user.application.port.inbound.NicknameUpdateCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
+import com.gamyeon.user.application.port.inbound.UserUseCase;
 import com.gamyeon.user.application.port.outbound.RefreshTokenRepository;
 import com.gamyeon.user.application.port.outbound.UserRepository;
 import com.gamyeon.user.domain.User;
 import com.gamyeon.user.domain.UserDomainException;
 import com.gamyeon.user.domain.UserErrorCode;
 
-public class UserService {
+public class UserService implements UserUseCase {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;

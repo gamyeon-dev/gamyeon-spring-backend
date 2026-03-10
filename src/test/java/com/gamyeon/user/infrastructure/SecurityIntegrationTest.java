@@ -1,5 +1,6 @@
 package com.gamyeon.user.infrastructure;
 
+import com.gamyeon.common.exception.CommonErrorCode;
 import com.gamyeon.user.infrastructure.security.JwtProvider;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,14 +38,14 @@ class SecurityIntegrationTest {
     void usersMeShouldReturnUnauthorizedWithoutToken() throws Exception {
         mockMvc.perform(get("/api/v1/users/me"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("INVALID_TOKEN"));
+                .andExpect(jsonPath("$.code").value(CommonErrorCode.INVALID_TOKEN.getCode()));
     }
 
     @Test
     void logoutShouldReturnUnauthorizedWithoutToken() throws Exception {
         mockMvc.perform(post("/api/v1/auth/logout"))
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.code").value("INVALID_TOKEN"));
+                .andExpect(jsonPath("$.code").value(CommonErrorCode.INVALID_TOKEN.getCode()));
     }
 
     @Test
@@ -63,13 +64,13 @@ class SecurityIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{}"))
                 .andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.code").value("FORBIDDEN"));
+                .andExpect(jsonPath("$.code").value(CommonErrorCode.FORBIDDEN.getCode()));
     }
 
     @Test
     void missingPathShouldReturnNotFound() throws Exception {
         mockMvc.perform(get("/actuator/missing-path"))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.code").value("NOT_FOUND"));
+                .andExpect(jsonPath("$.code").value(CommonErrorCode.NOT_FOUND.getCode()));
     }
 }

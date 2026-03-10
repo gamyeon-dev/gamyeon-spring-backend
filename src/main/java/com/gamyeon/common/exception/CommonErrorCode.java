@@ -1,5 +1,6 @@
 package com.gamyeon.common.exception;
 
+import com.gamyeon.common.response.ErrorCode;
 import org.springframework.http.HttpStatus;
 
 public enum CommonErrorCode implements ErrorCode {
@@ -13,6 +14,9 @@ public enum CommonErrorCode implements ErrorCode {
     FORBIDDEN       (HttpStatus.FORBIDDEN,              "접근 권한이 없습니다.",             "CMMN-A002"),
     EXPIRED_TOKEN   (HttpStatus.UNAUTHORIZED,           "토큰이 만료되었습니다.",            "CMMN-A003"),
     INVALID_TOKEN   (HttpStatus.UNAUTHORIZED,           "유효하지 않은 토큰입니다.",         "CMMN-A004"),
+
+    // ── N : Not Found ─────────────────────────────────
+    NOT_FOUND       (HttpStatus.NOT_FOUND,              "요청한 리소스를 찾을 수 없습니다.", "CMMN-N001"),
 
     // ── I : Internal ──────────────────────────────────
     INTERNAL_ERROR  (HttpStatus.INTERNAL_SERVER_ERROR,  "서버 내부 오류가 발생했습니다.",    "CMMN-I001"),

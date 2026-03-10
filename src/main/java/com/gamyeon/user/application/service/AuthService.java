@@ -2,6 +2,7 @@ package com.gamyeon.user.application.service;
 
 import com.gamyeon.common.exception.CommonErrorCode;
 import com.gamyeon.common.exception.CommonException;
+import com.gamyeon.user.application.port.inbound.AuthUseCase;
 import com.gamyeon.user.application.port.inbound.LoginResult;
 import com.gamyeon.user.application.port.inbound.OAuthLoginCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
@@ -15,7 +16,7 @@ import com.gamyeon.user.domain.UserDomainException;
 import com.gamyeon.user.domain.UserErrorCode;
 import com.gamyeon.user.infrastructure.security.JwtProvider;
 
-public class AuthService {
+public class AuthService implements AuthUseCase {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -42,12 +43,13 @@ public class AuthService {
         String oauthAccessToken = oAuthPort.getAccessToken(provider, authCode);
         OAuthPort.OAuthUserInfo oAuthUserInfo = oAuthPort.getUserInfo(provider, oauthAccessToken);
 
-        String nickname = nicknameResolver.resolve(oAuthUserInfo.getNickname(), oAuthUserInfo.getEmail());
+        String email = resolveEmail(provider, oAuthUserInfo);
+        String nickname = nicknameResolver.resolve(oAuthUserInfo.getNickname(), email);
 
         User user = userRepository.findByProviderAndProviderId(provider, oAuthUserInfo.getProviderId())
                 .orElseGet(() -> {
                     User newUser = User.create(
-                            oAuthUserInfo.getEmail(),
+                            email,
                             nickname,
                             provider,
                             oAuthUserInfo.getProviderId()
@@ -80,6 +82,15 @@ public class AuthService {
 
     public void logout(Long userId) {
         refreshTokenRepository.deleteByUserId(userId);
+    }
+
+    private String resolveEmail(OAuthProvider provider, OAuthPort.OAuthUserInfo userInfo) {
+        String email = userInfo.getEmail();
+        if (email != null && !email.isBlank()) {
+            return email;
+        }
+        // 이메일 동의 거부(또는 비즈니스 앱 미전환) 시 합성 이메일 사용
+        return provider.name().toLowerCase() + "_" + userInfo.getProviderId() + "@" + provider.name().toLowerCase() + ".local";
     }
 
     private void ensureLoginAllowed(User user) {

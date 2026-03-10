@@ -2,7 +2,7 @@ package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamyeon.common.exception.CommonErrorCode;
-import com.gamyeon.common.exception.ErrorCode;
+import com.gamyeon.common.response.ErrorCode;
 import com.gamyeon.common.response.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;

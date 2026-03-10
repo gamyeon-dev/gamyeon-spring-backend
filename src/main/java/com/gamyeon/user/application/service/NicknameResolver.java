@@ -15,6 +15,9 @@ public class NicknameResolver {
     }
 
     private String extractFromEmail(String email) {
+        if (email == null || email.isBlank()) {
+            return "user" + (int)(Math.random() * 100000);
+        }
         String localPart = email.contains("@") ? email.split("@")[0] : email;
         if (localPart.length() > MAX_NICKNAME_LENGTH) {
             localPart = localPart.substring(0, MAX_NICKNAME_LENGTH);

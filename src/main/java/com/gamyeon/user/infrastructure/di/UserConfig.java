@@ -1,5 +1,7 @@
 package com.gamyeon.user.infrastructure.di;
 
+import com.gamyeon.user.application.port.inbound.AuthUseCase;
+import com.gamyeon.user.application.port.inbound.UserUseCase;
 import com.gamyeon.user.application.port.outbound.OAuthPort;
 import com.gamyeon.user.application.port.outbound.RefreshTokenRepository;
 import com.gamyeon.user.application.port.outbound.UserRepository;
@@ -40,7 +42,7 @@ public class UserConfig {
     }
 
     @Bean
-    public AuthService authService(UserRepository userRepository,
+    public AuthUseCase authUseCase(UserRepository userRepository,
                                    RefreshTokenRepository refreshTokenRepository,
                                    OAuthPort oAuthPort,
                                    JwtProvider jwtProvider,
@@ -49,7 +51,7 @@ public class UserConfig {
     }
 
     @Bean
-    public UserService userService(UserRepository userRepository,
+    public UserUseCase userUseCase(UserRepository userRepository,
                                    RefreshTokenRepository refreshTokenRepository) {
         return new UserService(userRepository, refreshTokenRepository);
     }
