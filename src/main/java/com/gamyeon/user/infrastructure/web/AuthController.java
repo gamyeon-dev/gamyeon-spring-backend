@@ -1,12 +1,13 @@
 package com.gamyeon.user.infrastructure.web;
 
-import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.exception.CommonException;
+import com.gamyeon.common.response.SuccessResponse;
+import com.gamyeon.user.application.port.inbound.AuthUseCase;
 import com.gamyeon.user.application.port.inbound.LoginResult;
 import com.gamyeon.user.application.port.inbound.OAuthLoginCommand;
-import com.gamyeon.user.application.service.AuthService;
 import com.gamyeon.user.domain.OAuthProvider;
-import com.gamyeon.user.domain.UserDomainException;
-import com.gamyeon.user.domain.UserErrorCode;
+import com.gamyeon.user.domain.UserSuccessCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.http.ResponseEntity;
@@ -21,44 +22,44 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/auth")
 public class AuthController {
 
-    private final AuthService authService;
+    private final AuthUseCase authUseCase;
 
-    public AuthController(AuthService authService) {
-        this.authService = authService;
+    public AuthController(AuthUseCase authUseCase) {
+        this.authUseCase = authUseCase;
     }
 
     @PostMapping("/login/{provider}")
-    public ResponseEntity<ApiResponse<LoginResponse>> login(
+    public ResponseEntity<SuccessResponse<LoginResponse>> login(
             @PathVariable String provider,
             @Valid @RequestBody LoginRequest request) {
 
         OAuthProvider oAuthProvider = parseProvider(provider);
         OAuthLoginCommand command = OAuthLoginCommand.of(oAuthProvider, request.authorizationCode());
-        LoginResult result = authService.login(command);
-        return ResponseEntity.ok(ApiResponse.success(LoginResponse.from(result)));
+        LoginResult result = authUseCase.login(command);
+        return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_LOGIN, LoginResponse.from(result)));
     }
 
     @PostMapping("/reissue")
-    public ResponseEntity<ApiResponse<LoginResponse>> reissue(
+    public ResponseEntity<SuccessResponse<LoginResponse>> reissue(
             @Valid @RequestBody ReissueRequest request) {
 
-        LoginResult result = authService.reissue(request.refreshToken());
-        return ResponseEntity.ok(ApiResponse.success(LoginResponse.from(result)));
+        LoginResult result = authUseCase.reissue(request.refreshToken());
+        return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_TOKEN_REISSUED, LoginResponse.from(result)));
     }
 
     @PostMapping("/logout")
-    public ResponseEntity<ApiResponse<Void>> logout(
+    public ResponseEntity<SuccessResponse<Void>> logout(
             @AuthenticationPrincipal Long userId) {
 
-        authService.logout(userId);
-        return ResponseEntity.ok(ApiResponse.success(null));
+        authUseCase.logout(userId);
+        return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_LOGOUT, null));
     }
 
     private OAuthProvider parseProvider(String provider) {
         return switch (provider.toLowerCase()) {
             case "google" -> OAuthProvider.GOOGLE;
             case "kakao" -> OAuthProvider.KAKAO;
-            default -> throw new UserDomainException(UserErrorCode.INVALID_OAUTH_PROVIDER);
+            default -> throw new CommonException(CommonErrorCode.INVALID_INPUT);
         };
     }
 

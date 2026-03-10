@@ -2,13 +2,14 @@ package com.gamyeon.user.application.service;
 
 import com.gamyeon.user.application.port.inbound.NicknameUpdateCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
+import com.gamyeon.user.application.port.inbound.UserUseCase;
 import com.gamyeon.user.application.port.outbound.RefreshTokenRepository;
 import com.gamyeon.user.application.port.outbound.UserRepository;
 import com.gamyeon.user.domain.User;
 import com.gamyeon.user.domain.UserDomainException;
 import com.gamyeon.user.domain.UserErrorCode;
 
-public class UserService {
+public class UserService implements UserUseCase {
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -41,11 +42,8 @@ public class UserService {
     private User findActiveUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserDomainException(UserErrorCode.USER_NOT_FOUND));
-        if (user.isBanned()) {
-            throw new UserDomainException(UserErrorCode.USER_BANNED);
-        }
-        if (user.isWithdrew()) {
-            throw new UserDomainException(UserErrorCode.USER_ALREADY_WITHDREW);
+        if (user.isBanned() || user.isWithdrew()) {
+            throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
         }
         return user;
     }
