@@ -4,5 +4,7 @@ services:
     container_name: SPRING-SERVER
     environment:
       - CONSUL_HOST=consul
+    env_file:
+      - .env
     ports:
       - "8080:8080"
