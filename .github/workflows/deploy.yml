@@ -2,7 +2,7 @@ name: Spring Boot CI/CD
 
 on:
   push:
-    branches: [ "chore/cd" ] # 배포 대상 브랜치
+    branches: [ "develop" ] # 배포 대상 브랜치
 
 jobs:
   deploy:
