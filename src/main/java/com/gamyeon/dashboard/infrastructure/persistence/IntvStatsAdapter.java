@@ -20,13 +20,13 @@ public class IntvStatsAdapter implements IntvStatsPort {
     @Override
     public List<DailyStat> findDailyStats(Long userId, LocalDate startDate, LocalDate endDate) {
         String sql = """
-                SELECT DATE(finished_at) AS date, COUNT(*) AS count
+                SELECT CAST(finished_at AS DATE) AS date, COUNT(*) AS count
                 FROM intv
                 WHERE user_id = :userId
                   AND status = 'FINISHED'
-                  AND DATE(finished_at) BETWEEN :startDate AND :endDate
-                GROUP BY DATE(finished_at)
-                ORDER BY DATE(finished_at)
+                  AND CAST(finished_at AS DATE) BETWEEN :startDate AND :endDate
+                GROUP BY CAST(finished_at AS DATE)
+                ORDER BY CAST(finished_at AS DATE)
                 """;
 
         Query query = entityManager.createNativeQuery(sql);
