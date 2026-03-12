@@ -11,6 +11,8 @@ public enum PreparationErrorCode implements ErrorCode {
     INVALID_FILE_EXTENSION(HttpStatus.BAD_REQUEST, "PREP-B005", "PDF 파일만 업로드할 수 있습니다."),
     INVALID_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "PREP-B006", "contentType은 application/pdf 이어야 합니다."),
     FILE_SIZE_EXCEEDED(HttpStatus.BAD_REQUEST, "PREP-B007", "파일 크기가 허용 용량을 초과했습니다."),
+    INVALID_FILE_BATCH_SIZE(HttpStatus.BAD_REQUEST, "PREP-B008", "파일은 한 번에 최대 3개까지 저장할 수 있습니다."),
+    DUPLICATE_FILE_TYPE_IN_REQUEST(HttpStatus.BAD_REQUEST, "PREP-B009", "한 요청에 같은 파일 타입을 중복해서 저장할 수 없습니다."),
     PREPARATION_NOT_FOUND(HttpStatus.NOT_FOUND, "PREP-N001", "해당 면접의 preparation을 찾을 수 없습니다."),
     PREPARATION_FILE_TYPE_ALREADY_EXISTS(HttpStatus.CONFLICT, "PREP-C001", "해당 파일 타입은 이미 업로드되었습니다.");
 
