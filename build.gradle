@@ -5,7 +5,7 @@ plugins {
 }
 
 ext {
-    set('springCloudVersion', '2023.0.5')
+    set('springCloudVersion', '2025.0.0')
 }
 
 group = 'com.gamyeon'

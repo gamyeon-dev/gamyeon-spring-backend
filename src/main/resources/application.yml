@@ -10,7 +10,7 @@ spring:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       config:
-        enabled: false   # 시크릿은 GitHub Secrets → CI/CD 환경변수로 관리
+        enabled: false
       discovery:
         enabled: true
         instance-id: ${spring.application.name}:${server.port}
