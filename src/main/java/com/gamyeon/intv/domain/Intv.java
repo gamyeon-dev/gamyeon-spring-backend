@@ -51,23 +51,19 @@ public class Intv extends BaseEntity {
         this.totalPausedSeconds = 0L;
     }
 
-    // 생성
     public static Intv create(Long userId, String title) {
         return new Intv(userId, title);
     }
 
-    // 제목 수정
     public void updateTitle(String title) {
         this.title = title;
     }
 
-    // 시작
     public void start() {
         this.startedAt = LocalDateTime.now();
         this.status = IntvStatus.IN_PROGRESS;
     }
 
-    // 중단
     public void pause() {
         if (status != IntvStatus.IN_PROGRESS || pausedAt != null) {
             throw new IntvException(IntvErrorCode.DO_NOT_PAUSE);
@@ -76,7 +72,6 @@ public class Intv extends BaseEntity {
         this.status = IntvStatus.PAUSED;
     }
 
-    // 재개
     public void resume() {
         if (status != IntvStatus.PAUSED || pausedAt == null) {
             throw new IntvException(IntvErrorCode.DO_NOT_RESUME);
@@ -87,20 +82,31 @@ public class Intv extends BaseEntity {
         this.status = IntvStatus.IN_PROGRESS;
     }
 
-    // 종료
     public void finish() {
         if (status != IntvStatus.IN_PROGRESS) {
             throw new IntvException(IntvErrorCode.DO_NOT_FINISH);
         }
         LocalDateTime now = LocalDateTime.now();
         this.finishedAt = now;
-        long totalElapsedSeconds = // 총 경과 시간(시작시각 - 현재시각)
-                Duration.between(startedAt, now).getSeconds();
-        long actualDurationSeconds = // 실제 소요된 시간(총 경과시간 - 총 중단 시간)
-                totalElapsedSeconds - totalPausedSeconds;
+        long totalElapsedSeconds = Duration.between(startedAt, now).getSeconds();
+        long actualDurationSeconds = totalElapsedSeconds - totalPausedSeconds;
         this.durationSeconds = actualDurationSeconds;
         this.status = IntvStatus.FINISHED;
-        // TODO : 중단 시간 음수 검증, 중단된 면접 종료 가능하게 할 지 정책 검토
+    }
 
+    public Long getId() {
+        return id;
+    }
+
+    public Long getUserId() {
+        return userId;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public IntvStatus getStatus() {
+        return status;
     }
 }

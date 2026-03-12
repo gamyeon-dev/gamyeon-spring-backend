@@ -51,4 +51,4 @@ memory/MEMORY.md
 **/.env.local
 
 ### github ###
-.github/
+# .github/ 은 추적 필요 (GitHub Actions workflows)

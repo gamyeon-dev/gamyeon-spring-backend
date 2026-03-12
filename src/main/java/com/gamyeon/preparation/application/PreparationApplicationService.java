@@ -26,6 +26,7 @@ import com.gamyeon.preparation.domain.PreparationFile;
 import com.gamyeon.preparation.domain.PreparationFileType;
 import com.gamyeon.question.application.port.out.LoadPreparationPort;
 import com.gamyeon.question.application.port.out.PreparationForQuestionGeneration;
+import com.gamyeon.question.application.port.out.PreparationSourceFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,11 +122,6 @@ public class PreparationApplicationService implements
     }
 
     @Override
-    public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
-        return null;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public UploadPreparationFileUrlResult issueUploadUrl(UploadPreparationFileUrlCommand command) {
         Intv intv = getOwnedIntv(command.userId(), command.intvId());
@@ -149,6 +145,25 @@ public class PreparationApplicationService implements
                 result.presignedUrl(),
                 result.fileUrl(),
                 result.expiresInSeconds()
+        );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
+        Preparation preparation = getPreparationByIntvId(intvId);
+        List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
+
+        return new PreparationForQuestionGeneration(
+                preparation.getId(),
+                preparation.getIntvId(),
+                preparation.getStatus(),
+                files.stream()
+                        .map(file -> new PreparationSourceFile(
+                                file.getType(),
+                                file.getFileKey()
+                        ))
+                        .toList()
         );
     }
 

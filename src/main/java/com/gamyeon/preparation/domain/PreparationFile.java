@@ -1,6 +1,11 @@
 package com.gamyeon.preparation.domain;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import lombok.Getter;
 
 @Entity
@@ -45,5 +50,25 @@ public class PreparationFile {
 
     public boolean isType(PreparationFileType fileType) {
         return this.type == fileType;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public PreparationFileType getType() {
+        return type;
+    }
+
+    public String getOriginalFileName() {
+        return originalFileName;
+    }
+
+    public String getFileKey() {
+        return fileKey;
+    }
+
+    public String getFileUrl() {
+        return fileUrl;
     }
 }
