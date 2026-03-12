@@ -1,14 +1,12 @@
 package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamyeon.common.response.ApiResponse;
-import com.gamyeon.common.response.ErrorCode;
-import com.gamyeon.common.response.ErrorDetail;
+import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.response.ErrorResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -39,14 +37,12 @@ public class InternalApiKeyFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         String key = request.getHeader(API_KEY_HEADER);
         if (!internalApiKey.equals(key)) {
-            response.setStatus(HttpStatus.FORBIDDEN.value());
+            response.setStatus(CommonErrorCode.FORBIDDEN.getStatus().value());
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-//            response.getWriter().write(
-//                    objectMapper.writeValueAsString(
-//                            ApiResponse.fail("FORBIDDEN", ErrorDetail"유효하지 않은 내부 API 키입니다.")
-//                    )
-//            );
+            response.getWriter().write(
+                    objectMapper.writeValueAsString(ErrorResponse.of(CommonErrorCode.FORBIDDEN))
+            );
             return;
         }
         filterChain.doFilter(request, response);

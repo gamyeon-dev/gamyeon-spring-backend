@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:gamyeon-test;MODE=PostgreSQL
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+jwt:
+  secret: test-secret-key-minimum-32-characters!!
+  access-token-expiry: 3600000
+  refresh-token-expiry: 604800000
+
+internal:
+  api-key: test-internal-api-key
+
+oauth:
+  google:
+    client-id: test-google-client-id
+    client-secret: test-google-client-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/google
+  kakao:
+    client-id: test-kakao-client-id
+    client-secret: test-kakao-client-secret
+    redirect-uri: http://localhost:8080/login/oauth2/code/kakao

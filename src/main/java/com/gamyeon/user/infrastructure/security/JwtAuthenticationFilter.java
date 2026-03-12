@@ -1,8 +1,9 @@
 package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gamyeon.common.response.ApiResponse;
-import com.gamyeon.user.domain.UserErrorCode;
+import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.response.ErrorCode;
+import com.gamyeon.common.response.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -22,7 +23,8 @@ import java.util.List;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final List<String> PUBLIC_PATHS = List.of(
-            "/api/v1/auth/**",
+            "/api/v1/auth/login/**",
+            "/api/v1/auth/reissue",
             "/api/internal/**",
             "/health",
             "/actuator/**"
@@ -50,7 +52,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            writeError(response, UserErrorCode.INVALID_TOKEN);
+            filterChain.doFilter(request, response);
             return;
         }
 
@@ -68,16 +70,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
 
         } catch (ExpiredJwtException e) {
-            writeError(response, UserErrorCode.EXPIRED_TOKEN);
+            writeError(response, CommonErrorCode.EXPIRED_TOKEN);
         } catch (JwtException | IllegalArgumentException e) {
-            writeError(response, UserErrorCode.INVALID_TOKEN);
+            writeError(response, CommonErrorCode.INVALID_TOKEN);
         }
     }
 
-    private void writeError(HttpServletResponse response, UserErrorCode errorCode) throws IOException {
+    private void writeError(HttpServletResponse response, ErrorCode errorCode) throws IOException {
         response.setStatus(errorCode.getStatus().value());
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-        response.getWriter().write(objectMapper.writeValueAsString(ApiResponse.fail(errorCode)));
+        response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.of(errorCode)));
     }
 }

@@ -37,11 +37,18 @@ out/
 .vscode/
 
 ### Docs ###
-CLAUDE.md
+.md
 docs/
+.claude/settings.local.json
+AGENTS.md
+CLAUDE.md
+memory/MEMORY.md
 
 ### Secrets ###
 **/application-local.yml
 **/application-local.yaml
 **/.env
 **/.env.local
+
+### github ###
+.github/
