@@ -3,6 +3,17 @@ spring:
     active: local
   application:
     name: gamyeon-backend
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      config:
+        enabled: false   # 시크릿은 GitHub Secrets → CI/CD 환경변수로 관리
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}:${server.port}
   jpa:
     hibernate:
       ddl-auto: validate
