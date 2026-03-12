@@ -11,7 +11,8 @@ spring:
         enabled: false
       discovery:
         enabled: true
-        instance-id: ${spring.application.name}:${server.port}
+        service-name: GAMYEON-BACKEND
+        instance-id: GAMYEON-BACKEND:${server.port}
         fail-fast: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
