@@ -4,14 +4,19 @@ import com.gamyeon.common.exception.CommonErrorCode;
 import com.gamyeon.common.exception.CommonException;
 import com.gamyeon.user.application.port.outbound.OAuthPort;
 import com.gamyeon.user.domain.OAuthProvider;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.WebClientException;
 import org.springframework.web.reactive.function.client.WebClientResponseException;
 
 public class OAuthAdapter implements OAuthPort {
+
+    private static final Logger log = LoggerFactory.getLogger(OAuthAdapter.class);
 
     private static final String GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token";
     private static final String GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo";
@@ -34,7 +39,11 @@ public class OAuthAdapter implements OAuthPort {
                 case KAKAO -> fetchKakaoAccessToken(authorizationCode);
             };
         } catch (WebClientResponseException e) {
+            log.warn("[OAuth] {} 토큰 발급 실패 - status={}, body={}", provider, e.getStatusCode(), e.getResponseBodyAsString());
             throw new CommonException(CommonErrorCode.UNAUTHORIZED);
+        } catch (WebClientException e) {
+            log.error("[OAuth] {} 토큰 요청 중 네트워크 오류: {}", provider, e.getMessage(), e);
+            throw new CommonException(CommonErrorCode.INTERNAL_ERROR);
         }
     }
 
@@ -46,7 +55,11 @@ public class OAuthAdapter implements OAuthPort {
                 case KAKAO -> fetchKakaoUserInfo(accessToken);
             };
         } catch (WebClientResponseException e) {
+            log.warn("[OAuth] {} 사용자 정보 조회 실패 - status={}, body={}", provider, e.getStatusCode(), e.getResponseBodyAsString());
             throw new CommonException(CommonErrorCode.UNAUTHORIZED);
+        } catch (WebClientException e) {
+            log.error("[OAuth] {} 사용자 정보 요청 중 네트워크 오류: {}", provider, e.getMessage(), e);
+            throw new CommonException(CommonErrorCode.INTERNAL_ERROR);
         }
     }
 

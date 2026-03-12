@@ -1,11 +1,23 @@
 spring:
   profiles:
-    active: local
+    active: prod
   application:
     name: gamyeon-backend
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      config:
+        enabled: false
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}:${server.port}
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
     show-sql: false
     properties:
       hibernate:
