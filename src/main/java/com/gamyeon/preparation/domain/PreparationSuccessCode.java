@@ -4,7 +4,8 @@ import com.gamyeon.common.response.SuccessCode;
 import org.springframework.http.HttpStatus;
 
 public enum PreparationSuccessCode implements SuccessCode {
-    PREPARATION_UPLOAD_URL_ISSUED(HttpStatus.CREATED, "PREP-S001", "파일 업로드용 presigned URL이 발급되었습니다.");
+    PREPARATION_UPLOAD_URL_ISSUED(HttpStatus.CREATED, "PREP-S001", "파일 업로드용 presigned URL이 발급되었습니다."),
+    PREPARATION_FILE_REGISTERED(HttpStatus.CREATED, "PREP-S002", "업로드된 파일 정보가 저장되었습니다.");
 
     private final HttpStatus status;
     private final String code;

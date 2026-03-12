@@ -4,6 +4,7 @@ import com.gamyeon.intv.domain.Intv;
 import com.gamyeon.intv.domain.IntvErrorCode;
 import com.gamyeon.intv.domain.IntvException;
 import com.gamyeon.preparation.application.port.in.PreparationFileCommand;
+import com.gamyeon.preparation.application.port.in.PreparationFileRegisterResult;
 import com.gamyeon.preparation.application.port.in.PreparationFileResult;
 import com.gamyeon.preparation.application.port.in.PreparationFileUseCase;
 import com.gamyeon.preparation.application.port.in.PreparationResult;
@@ -87,11 +88,12 @@ public class PreparationApplicationService implements
     }
 
     @Override
-    public void registerFile(PreparationFileCommand command) {
+    public PreparationFileRegisterResult registerFile(PreparationFileCommand command) {
         Intv intv = getOwnedIntv(command.userId(), command.intvId());
         Preparation preparation = getPreparationByIntvId(intv.getId());
 
         validateDuplicateFileType(preparation.getId(), command.fileType());
+        validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
 
         PreparationFile preparationFile = PreparationFile.create(
                 preparation.getId(),
@@ -101,13 +103,23 @@ public class PreparationApplicationService implements
                 command.fileUrl()
         );
 
-        preparationFilePort.save(preparationFile);
+        PreparationFile savedFile = preparationFilePort.save(preparationFile);
 
         List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
         if (preparation.satisfiesRequiredFiles(files)) {
             preparation.markReady();
             preparationPort.save(preparation);
         }
+
+        return new PreparationFileRegisterResult(
+                preparation.getId(),
+                savedFile.getId(),
+                savedFile.getType(),
+                savedFile.getOriginalFileName(),
+                savedFile.getFileKey(),
+                savedFile.getFileUrl(),
+                preparation.getStatus()
+        );
     }
 
     @Override
@@ -169,6 +181,11 @@ public class PreparationApplicationService implements
         if (!PDF_CONTENT_TYPE.equalsIgnoreCase(contentType)) {
             throw new PreparationException(PreparationErrorCode.INVALID_CONTENT_TYPE);
         }
+    }
+
+    private String extractContentTypeFromFileName(String originalFileName) {
+        String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
+        return normalizedFileName.endsWith(PDF_EXTENSION) ? PDF_CONTENT_TYPE : "";
     }
 
     private void validateFileSize(PreparationFileType fileType, Long fileSizeBytes) {
