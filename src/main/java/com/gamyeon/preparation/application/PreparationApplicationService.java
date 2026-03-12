@@ -152,6 +152,27 @@ public class PreparationApplicationService implements
         );
     }
 
+    // 질문 생성용 LoadPreparationPort 구현
+    @Override
+    @Transactional(readOnly = true)
+    public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
+        Preparation preparation = getPreparationByIntvId(intvId);
+        List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
+
+        return new PreparationForQuestionGeneration(
+                preparation.getId(),
+                preparation.getIntvId(),
+                preparation.getStatus(),
+                files.stream()
+                        .map(file -> new PreparationSourceFile(
+                                file.getType(),
+                                file.getFileKey()
+                        ))
+                        .toList()
+        );
+    }
+
+
     private Intv getOwnedIntv(Long userId, Long intvId) {
         Intv intv = intvPort.loadById(intvId)
                 .orElseThrow(() -> new IntvException(IntvErrorCode.INTV_NOT_FOUND));
@@ -229,6 +250,46 @@ public class PreparationApplicationService implements
     private String extractContentTypeFromFileName(String originalFileName) {
         String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
         return normalizedFileName.endsWith(PDF_EXTENSION) ? PDF_CONTENT_TYPE : "";
+    }
+
+    private void validateRegisterFileCommands(List<PreparationFileCommand> commands) {
+        if (commands.size() > 3) {
+            throw new PreparationException(PreparationErrorCode.INVALID_FILE_BATCH_SIZE);
+        }
+
+        Set<PreparationFileType> fileTypes = new HashSet<>();
+        for (PreparationFileCommand command : commands) {
+            validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
+            if (!fileTypes.add(command.fileType())) {
+                throw new PreparationException(PreparationErrorCode.DUPLICATE_FILE_TYPE_IN_REQUEST);
+            }
+        }
+    }
+
+    private PreparationFile savePreparationFile(Preparation preparation, PreparationFileCommand command) {
+        validateDuplicateFileType(preparation.getId(), command.fileType());
+
+        PreparationFile preparationFile = PreparationFile.create(
+                preparation.getId(),
+                command.fileType(),
+                command.originalFileName(),
+                command.fileKey(),
+                command.fileUrl()
+        );
+
+        return preparationFilePort.save(preparationFile);
+    }
+
+    private void updatePreparationStatusIfReady(Preparation preparation, List<PreparationFile> files) {
+        if (!preparation.satisfiesRequiredFiles(files)) {
+            return;
+        }
+
+        if (preparation.getStatus() == com.gamyeon.preparation.domain.PreparationStatus.CREATED
+                || preparation.getStatus() == com.gamyeon.preparation.domain.PreparationStatus.FAILED) {
+            preparation.markReady();
+            preparationPort.save(preparation);
+        }
     }
 
     private void validateFileSize(PreparationFileType fileType, Long fileSizeBytes) {

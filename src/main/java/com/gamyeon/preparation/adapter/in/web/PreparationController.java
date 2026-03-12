@@ -34,7 +34,7 @@ public class PreparationController {
     public ResponseEntity<ApiResponse<PreparationFileRegisterResponse>> registerFile(
             @CurrentUserId Long userId,
             @PathVariable Long intvId,
-            @Valid @RequestBody PreparationFileRegisterRequest request
+            @Valid @RequestBody PreparationFilesRegisterRequest request
     ) {
         PreparationFilesRegisterResult result = preparationFileUseCase.registerFiles(
                 request.files().stream()

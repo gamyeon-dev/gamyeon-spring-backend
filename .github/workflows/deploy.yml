@@ -32,35 +32,31 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ec2-user/app
-            
+
             docker network create gamyeon-net || true
-            
-            # [수정] 1. GitHub Secrets의 값으로 .env 파일을 강제 생성 (덮어쓰기)
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-            echo "INTERNAL_API_KEY=${{ secrets.INTERNAL_API_KEY }}" >> .env
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-            echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
-            echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
-            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-            echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> .env
-            echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
-            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
-            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
-            echo "SPRING_JPA_HIBERNATE_DDL_AUTO=${{ secrets.SPRING_JPA_HIBERNATE_DDL_AUTO }}" >> .env
-            echo SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} >> .env
-            echo SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} >> .env
-            echo SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} >> .env
-            echo SPRING_JPA_HIBERNATE_DDL_AUTO=${{ secrets.SPRING_JPA_HIBERNATE_DDL_AUTO }} >> .env
-            echo S3_BUCKET=${{ secrets.S3_BUCKET }} >> .env
-            echo S3_REGION=${{ secrets.S3_REGION }} >> .env
-            echo S3_PRESIGNED_DURATION_SECONDS=${{ secrets.S3_PRESIGNED_DURATION_SECONDS }} >> .env
-            echo S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} >> .env
-            echo S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} >> .env
-            
-            # [수정] 2. 최신 이미지 풀
+
+            # GitHub Secrets 값으로 .env 파일 생성 (덮어쓰기)
+            {
+              echo "CONSUL_HOST=consul"
+              echo "JWT_SECRET=${{ secrets.JWT_SECRET }}"
+              echo "INTERNAL_API_KEY=${{ secrets.INTERNAL_API_KEY }}"
+              echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}"
+              echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}"
+              echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}"
+              echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}"
+              echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}"
+              echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}"
+              echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}"
+              echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}"
+              echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}"
+              echo "SPRING_JPA_HIBERNATE_DDL_AUTO=${{ secrets.SPRING_JPA_HIBERNATE_DDL_AUTO }}"
+              echo "S3_BUCKET=${{ secrets.S3_BUCKET }}"
+              echo "S3_REGION=${{ secrets.S3_REGION }}"
+              echo "S3_PRESIGNED_DURATION_SECONDS=${{ secrets.S3_PRESIGNED_DURATION_SECONDS }}"
+              echo "S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }}"
+              echo "S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }}"
+            } > .env
+
+            # 최신 이미지 풀 및 컨테이너 재시작
             docker pull ${{ vars.DOCKERHUB_USERNAME }}/gamyeon-spring:latest
-            
-            # [중요] docker-compose로 한꺼번에 실행 (이미지 풀링 포함)
-            docker-compose pull
-            docker-compose up -d --build --no-deps spring-server
+            docker-compose up -d --no-deps spring-server
