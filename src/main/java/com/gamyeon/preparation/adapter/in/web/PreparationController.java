@@ -1,14 +1,14 @@
 package com.gamyeon.preparation.adapter.in.web;
 
 import com.gamyeon.common.response.ApiResponse;
-import com.gamyeon.preparation.application.port.in.PreparationFileRegisterResult;
+import com.gamyeon.common.security.CurrentUserId;
 import com.gamyeon.preparation.application.port.in.PreparationFileUseCase;
+import com.gamyeon.preparation.application.port.in.PreparationFilesRegisterResult;
 import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlResult;
 import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlUseCase;
 import com.gamyeon.preparation.domain.PreparationSuccessCode;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import com.gamyeon.common.security.CurrentUserId;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -36,8 +36,10 @@ public class PreparationController {
             @PathVariable Long intvId,
             @Valid @RequestBody PreparationFileRegisterRequest request
     ) {
-        PreparationFileRegisterResult result = preparationFileUseCase.registerFile(
-                request.toCommand(userId, intvId)
+        PreparationFilesRegisterResult result = preparationFileUseCase.registerFiles(
+                request.files().stream()
+                        .map(file -> file.toCommand(userId, intvId))
+                        .toList()
         );
 
         return ApiResponse.success(

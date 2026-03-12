@@ -66,8 +66,7 @@ public class Preparation extends BaseEntity {
 
     public boolean satisfiesRequiredFiles(List<PreparationFile> files) {
         return files.stream()
-                .map(PreparationFile::getType)
-                .anyMatch(PreparationFileType::isRequired);
+                .anyMatch(file -> file.isType(PreparationFileType.RESUME));
     }
 
     public Long getId() {

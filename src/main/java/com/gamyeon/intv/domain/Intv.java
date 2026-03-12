@@ -8,6 +8,7 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 import lombok.Getter;
 
 import java.time.Duration;
@@ -15,6 +16,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Entity
+@Table(name = "intv")
 public class Intv extends BaseEntity {
 
     @Id

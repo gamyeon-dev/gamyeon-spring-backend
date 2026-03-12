@@ -7,6 +7,7 @@ import com.gamyeon.preparation.application.port.in.PreparationFileCommand;
 import com.gamyeon.preparation.application.port.in.PreparationFileRegisterResult;
 import com.gamyeon.preparation.application.port.in.PreparationFileResult;
 import com.gamyeon.preparation.application.port.in.PreparationFileUseCase;
+import com.gamyeon.preparation.application.port.in.PreparationFilesRegisterResult;
 import com.gamyeon.preparation.application.port.in.PreparationResult;
 import com.gamyeon.preparation.application.port.in.PreparationUseCase;
 import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlCommand;
@@ -23,12 +24,16 @@ import com.gamyeon.preparation.domain.PreparationErrorCode;
 import com.gamyeon.preparation.domain.PreparationException;
 import com.gamyeon.preparation.domain.PreparationFile;
 import com.gamyeon.preparation.domain.PreparationFileType;
+import com.gamyeon.question.application.port.out.LoadPreparationPort;
+import com.gamyeon.question.application.port.out.PreparationForQuestionGeneration;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -36,7 +41,8 @@ import java.util.UUID;
 public class PreparationApplicationService implements
         PreparationUseCase,
         PreparationFileUseCase,
-        UploadPreparationFileUrlUseCase {
+        UploadPreparationFileUrlUseCase,
+        LoadPreparationPort {
 
     private static final String PDF_EXTENSION = ".pdf";
     private static final String PDF_CONTENT_TYPE = "application/pdf";
@@ -88,38 +94,35 @@ public class PreparationApplicationService implements
     }
 
     @Override
-    public PreparationFileRegisterResult registerFile(PreparationFileCommand command) {
-        Intv intv = getOwnedIntv(command.userId(), command.intvId());
+    public PreparationFilesRegisterResult registerFiles(List<PreparationFileCommand> commands) {
+        validateRegisterCommands(commands);
+
+        PreparationFileCommand firstCommand = commands.get(0);
+        Intv intv = getOwnedIntv(firstCommand.userId(), firstCommand.intvId());
         Preparation preparation = getPreparationByIntvId(intv.getId());
 
-        validateDuplicateFileType(preparation.getId(), command.fileType());
-        validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
+        validateDuplicateFileTypesInRequest(commands);
 
-        PreparationFile preparationFile = PreparationFile.create(
-                preparation.getId(),
-                command.fileType(),
-                command.originalFileName(),
-                command.fileKey(),
-                command.fileUrl()
-        );
+        List<PreparationFileRegisterResult> registeredFiles = commands.stream()
+                .map(command -> registerSingleFile(preparation, command))
+                .toList();
 
-        PreparationFile savedFile = preparationFilePort.save(preparationFile);
-
-        List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
-        if (preparation.satisfiesRequiredFiles(files)) {
+        List<PreparationFile> savedFiles = preparationFilePort.loadAllByPreparationId(preparation.getId());
+        if (preparation.satisfiesRequiredFiles(savedFiles)) {
             preparation.markReady();
             preparationPort.save(preparation);
         }
 
-        return new PreparationFileRegisterResult(
+        return new PreparationFilesRegisterResult(
                 preparation.getId(),
-                savedFile.getId(),
-                savedFile.getType(),
-                savedFile.getOriginalFileName(),
-                savedFile.getFileKey(),
-                savedFile.getFileUrl(),
-                preparation.getStatus()
+                preparation.getStatus(),
+                registeredFiles
         );
+    }
+
+    @Override
+    public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
+        return null;
     }
 
     @Override
@@ -163,6 +166,46 @@ public class PreparationApplicationService implements
     private Preparation getPreparationByIntvId(Long intvId) {
         return preparationPort.loadByIntvId(intvId)
                 .orElseThrow(() -> new PreparationException(PreparationErrorCode.PREPARATION_NOT_FOUND));
+    }
+
+    private void validateRegisterCommands(List<PreparationFileCommand> commands) {
+        if (commands == null || commands.isEmpty()) {
+            throw new PreparationException(PreparationErrorCode.EMPTY_FILE_REGISTER_REQUEST);
+        }
+    }
+
+    private void validateDuplicateFileTypesInRequest(List<PreparationFileCommand> commands) {
+        Set<PreparationFileType> seen = new HashSet<>();
+        for (PreparationFileCommand command : commands) {
+            if (!seen.add(command.fileType())) {
+                throw new PreparationException(PreparationErrorCode.DUPLICATE_FILE_TYPE_IN_REQUEST);
+            }
+        }
+    }
+
+    private PreparationFileRegisterResult registerSingleFile(Preparation preparation, PreparationFileCommand command) {
+        validateDuplicateFileType(preparation.getId(), command.fileType());
+        validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
+
+        PreparationFile preparationFile = PreparationFile.create(
+                preparation.getId(),
+                command.fileType(),
+                command.originalFileName(),
+                command.fileKey(),
+                command.fileUrl()
+        );
+
+        PreparationFile savedFile = preparationFilePort.save(preparationFile);
+
+        return new PreparationFileRegisterResult(
+                preparation.getId(),
+                savedFile.getId(),
+                savedFile.getType(),
+                savedFile.getOriginalFileName(),
+                savedFile.getFileKey(),
+                savedFile.getFileUrl(),
+                preparation.getStatus()
+        );
     }
 
     private void validateDuplicateFileType(Long preparationId, PreparationFileType fileType) {

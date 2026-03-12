@@ -11,23 +11,28 @@ import com.gamyeon.intv.domain.Intv;
 import com.gamyeon.intv.domain.IntvErrorCode;
 import com.gamyeon.intv.domain.IntvException;
 import com.gamyeon.intv.domain.IntvRepository;
+import com.gamyeon.preparation.application.port.in.PreparationUseCase;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class ApplicationService implements CreateUseCase, ChangeStateUseCase, UpdateTitleUseCase {
+public class IntvApplicationService implements CreateUseCase, ChangeStateUseCase, UpdateTitleUseCase {
 
     private final IntvRepository intvRepository;
+    private final PreparationUseCase preparationUseCase;
 
-    public ApplicationService(IntvRepository intvRepository) {
+    public IntvApplicationService(IntvRepository intvRepository, PreparationUseCase preparationUseCase) {
         this.intvRepository = intvRepository;
+        this.preparationUseCase = preparationUseCase;
     }
 
     @Override
     public IntvInfo create(CreateIntvCommand command) {
         Intv intv = Intv.create(command.userId(), command.title());
         Intv savedIntv = intvRepository.save(intv);
+
+        preparationUseCase.create(savedIntv.getId());
         return IntvInfo.from(savedIntv);
     }
 

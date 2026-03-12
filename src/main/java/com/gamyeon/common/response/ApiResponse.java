@@ -1,6 +1,5 @@
 package com.gamyeon.common.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
