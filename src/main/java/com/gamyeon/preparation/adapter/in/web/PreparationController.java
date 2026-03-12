@@ -32,7 +32,7 @@ public class PreparationController {
 
     @PostMapping("/{intvId}/files")
     public ResponseEntity<ApiResponse<PreparationFileRegisterResponse>> registerFile(
-            @AuthenticationPrincipal Long userId,
+            @CurrentUserId Long userId,
             @PathVariable Long intvId,
             @Valid @RequestBody PreparationFileRegisterRequest request
     ) {
