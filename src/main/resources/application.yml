@@ -2,12 +2,18 @@ spring:
   profiles:
     active: prod
   application:
-    name: GAMYEON_SPRING_SERVER
-  datasource:
-    url: ${SPRING_DATASOURCE_URL}
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
-    driver-class-name: org.postgresql.Driver
+    name: gamyeon-backend
+  cloud:
+    compatibility-verifier:
+      enabled: false
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      config:
+        enabled: false
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}:${server.port}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
@@ -63,3 +69,11 @@ oauth:
     client-id: ${KAKAO_CLIENT_ID}
     client-secret: ${KAKAO_CLIENT_SECRET}
     redirect-uri: ${KAKAO_REDIRECT_URI}
+
+storage:
+  s3:
+    bucket: ${S3_BUCKET}
+    region: ${S3_REGION}
+    presigned-duration-seconds: ${S3_PRESIGNED_DURATION_SECONDS:900}
+    access-key: ${S3_ACCESS_KEY:}
+    secret-key: ${S3_SECRET_KEY:}

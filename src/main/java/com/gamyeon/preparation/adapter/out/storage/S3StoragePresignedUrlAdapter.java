@@ -5,7 +5,6 @@ import com.gamyeon.preparation.application.port.out.StoragePresignedUrlPort;
 import com.gamyeon.preparation.application.port.out.StoragePresignedUrlResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -45,10 +44,9 @@ public class S3StoragePresignedUrlAdapter implements StoragePresignedUrlPort {
     }
 
     private String createFileUrl(String fileKey) {
-        Region region = storageProperties.region();
         return "https://%s.s3.%s.amazonaws.com/%s".formatted(
                 storageProperties.bucket(),
-                region.id(),
+                storageProperties.region(),
                 fileKey
         );
     }
