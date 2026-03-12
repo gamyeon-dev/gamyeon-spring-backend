@@ -26,3 +26,11 @@ oauth:
     client-id: test-kakao-client-id
     client-secret: test-kakao-client-secret
     redirect-uri: http://localhost:8080/login/oauth2/code/kakao
+
+storage:
+  s3:
+    bucket:
+    region: ap-northeast-2
+    presigned-duration-seconds: 900
+    access-key:
+    secret-key:

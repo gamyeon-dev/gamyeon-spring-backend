@@ -6,7 +6,7 @@ import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlUseCa
 import com.gamyeon.preparation.domain.PreparationSuccessCode;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.gamyeon.common.security.CurrentUserId;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,7 +25,7 @@ public class PreparationController {
 
     @PostMapping("/{intvId}/files/presigned-url")
     public ResponseEntity<ApiResponse<PreparationResponse>> issueUploadUrl(
-            @AuthenticationPrincipal Long userId,
+            @CurrentUserId Long userId,
             @PathVariable Long intvId,
             @Valid @RequestBody PreparationRequest request
     ) {

@@ -11,8 +11,8 @@ import com.gamyeon.intv.domain.IntvSuccessCode;
 import com.gamyeon.intv.presentation.dto.request.IntvRequest;
 import com.gamyeon.intv.presentation.dto.response.IntvResponse;
 import jakarta.validation.Valid;
+import com.gamyeon.common.security.CurrentUserId;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -36,7 +36,7 @@ public class IntvController {
     }
 
     @PostMapping
-    public ResponseEntity<ApiResponse<IntvResponse>> create(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<IntvResponse>> create(@CurrentUserId Long userId,
                                                             @Valid @RequestBody IntvRequest request) {
 
         IntvInfo info = createUseCase.create(request.toCreateCommand(userId));
@@ -45,7 +45,7 @@ public class IntvController {
     }
 
     @PatchMapping("/{intvId}")
-    public ResponseEntity<ApiResponse<IntvResponse>> update(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<IntvResponse>> update(@CurrentUserId Long userId,
                                                             @PathVariable Long intvId,
                                                             @Valid @RequestBody IntvRequest request) {
 
@@ -58,7 +58,7 @@ public class IntvController {
 
 
     @PatchMapping("/{intvId}/start")
-    public ResponseEntity<ApiResponse<Void>> start(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<Void>> start(@CurrentUserId Long userId,
                                                    @PathVariable Long intvId) {
 
         changeStateUseCase.start(new ChangeStateIntvCommand(userId, intvId));
@@ -67,7 +67,7 @@ public class IntvController {
     }
 
     @PatchMapping("/{intvId}/pause")
-    public ResponseEntity<ApiResponse<Void>> pauseIntv(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<Void>> pauseIntv(@CurrentUserId Long userId,
                                                        @PathVariable Long intvId) {
 
         changeStateUseCase.pause(new ChangeStateIntvCommand(userId, intvId));
@@ -76,7 +76,7 @@ public class IntvController {
     }
 
     @PatchMapping("/{intvId}/resume")
-    public ResponseEntity<ApiResponse<Void>> resumeIntv(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<Void>> resumeIntv(@CurrentUserId Long userId,
                                                         @PathVariable Long intvId) {
 
         changeStateUseCase.resume(new ChangeStateIntvCommand(userId, intvId));
@@ -85,7 +85,7 @@ public class IntvController {
     }
 
     @PatchMapping("/{intvId}/finish")
-    public ResponseEntity<ApiResponse<Void>> finishIntv(@AuthenticationPrincipal Long userId,
+    public ResponseEntity<ApiResponse<Void>> finishIntv(@CurrentUserId Long userId,
                                                         @PathVariable Long intvId) {
 
         changeStateUseCase.finish(new ChangeStateIntvCommand(userId, intvId));
