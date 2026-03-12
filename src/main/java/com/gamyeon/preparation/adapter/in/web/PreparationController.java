@@ -34,10 +34,12 @@ public class PreparationController {
     public ResponseEntity<ApiResponse<PreparationFileRegisterResponse>> registerFile(
             @CurrentUserId Long userId,
             @PathVariable Long intvId,
-            @Valid @RequestBody PreparationFileRegisterRequest request
+            @Valid @RequestBody PreparationFilesRegisterRequest request
     ) {
-        PreparationFileRegisterResult result = preparationFileUseCase.registerFile(
-                request.toCommand(userId, intvId)
+        PreparationFileRegisterResult result = preparationFileUseCase.registerFiles(
+                userId,
+                intvId,
+                request.toCommands()
         );
 
         return ApiResponse.success(

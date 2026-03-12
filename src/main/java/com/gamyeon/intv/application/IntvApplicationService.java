@@ -16,11 +16,11 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class ApplicationService implements CreateUseCase, ChangeStateUseCase, UpdateTitleUseCase {
+public class IntvApplicationService implements CreateUseCase, ChangeStateUseCase, UpdateTitleUseCase {
 
     private final IntvRepository intvRepository;
 
-    public ApplicationService(IntvRepository intvRepository) {
+    public IntvApplicationService(IntvRepository intvRepository) {
         this.intvRepository = intvRepository;
     }
 

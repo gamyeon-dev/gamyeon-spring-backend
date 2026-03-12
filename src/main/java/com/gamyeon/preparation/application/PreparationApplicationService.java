@@ -23,12 +23,17 @@ import com.gamyeon.preparation.domain.PreparationErrorCode;
 import com.gamyeon.preparation.domain.PreparationException;
 import com.gamyeon.preparation.domain.PreparationFile;
 import com.gamyeon.preparation.domain.PreparationFileType;
+import com.gamyeon.question.application.port.out.LoadPreparationPort;
+import com.gamyeon.question.application.port.out.PreparationForQuestionGeneration;
+import com.gamyeon.question.application.port.out.PreparationSourceFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.text.Normalizer;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -36,7 +41,10 @@ import java.util.UUID;
 public class PreparationApplicationService implements
         PreparationUseCase,
         PreparationFileUseCase,
-        UploadPreparationFileUrlUseCase {
+        UploadPreparationFileUrlUseCase,
+
+        LoadPreparationPort
+{
 
     private static final String PDF_EXTENSION = ".pdf";
     private static final String PDF_CONTENT_TYPE = "application/pdf";
@@ -88,37 +96,31 @@ public class PreparationApplicationService implements
     }
 
     @Override
-    public PreparationFileRegisterResult registerFile(PreparationFileCommand command) {
-        Intv intv = getOwnedIntv(command.userId(), command.intvId());
+    public PreparationFileRegisterResult registerFiles(Long userId, Long intvId, List<PreparationFileCommand> commands) {
+        Intv intv = getOwnedIntv(userId, intvId);
         Preparation preparation = getPreparationByIntvId(intv.getId());
+        validateRegisterFileCommands(commands);
 
-        validateDuplicateFileType(preparation.getId(), command.fileType());
-        validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
-
-        PreparationFile preparationFile = PreparationFile.create(
-                preparation.getId(),
-                command.fileType(),
-                command.originalFileName(),
-                command.fileKey(),
-                command.fileUrl()
-        );
-
-        PreparationFile savedFile = preparationFilePort.save(preparationFile);
+        List<PreparationFile> savedFiles = commands.stream()
+                .map(command -> savePreparationFile(preparation, command))
+                .toList();
 
         List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
-        if (preparation.satisfiesRequiredFiles(files)) {
-            preparation.markReady();
-            preparationPort.save(preparation);
-        }
+        updatePreparationStatusIfReady(preparation, files);
+
+        List<PreparationFileResult> fileResults = savedFiles.stream()
+                .map(file -> new PreparationFileResult(
+                        file.getId(),
+                        file.getType(),
+                        file.getOriginalFileName(),
+                        file.getFileUrl()
+                ))
+                .toList();
 
         return new PreparationFileRegisterResult(
                 preparation.getId(),
-                savedFile.getId(),
-                savedFile.getType(),
-                savedFile.getOriginalFileName(),
-                savedFile.getFileKey(),
-                savedFile.getFileUrl(),
-                preparation.getStatus()
+                preparation.getStatus(),
+                fileResults
         );
     }
 
@@ -148,6 +150,27 @@ public class PreparationApplicationService implements
                 result.expiresInSeconds()
         );
     }
+
+    // 질문 생성용 LoadPreparationPort 구현
+    @Override
+    @Transactional(readOnly = true)
+    public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
+        Preparation preparation = getPreparationByIntvId(intvId);
+        List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
+
+        return new PreparationForQuestionGeneration(
+                preparation.getId(),
+                preparation.getIntvId(),
+                preparation.getStatus(),
+                files.stream()
+                        .map(file -> new PreparationSourceFile(
+                                file.getType(),
+                                file.getFileKey()
+                        ))
+                        .toList()
+        );
+    }
+
 
     private Intv getOwnedIntv(Long userId, Long intvId) {
         Intv intv = intvPort.loadById(intvId)
@@ -186,6 +209,46 @@ public class PreparationApplicationService implements
     private String extractContentTypeFromFileName(String originalFileName) {
         String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
         return normalizedFileName.endsWith(PDF_EXTENSION) ? PDF_CONTENT_TYPE : "";
+    }
+
+    private void validateRegisterFileCommands(List<PreparationFileCommand> commands) {
+        if (commands.size() > 3) {
+            throw new PreparationException(PreparationErrorCode.INVALID_FILE_BATCH_SIZE);
+        }
+
+        Set<PreparationFileType> fileTypes = new HashSet<>();
+        for (PreparationFileCommand command : commands) {
+            validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
+            if (!fileTypes.add(command.fileType())) {
+                throw new PreparationException(PreparationErrorCode.DUPLICATE_FILE_TYPE_IN_REQUEST);
+            }
+        }
+    }
+
+    private PreparationFile savePreparationFile(Preparation preparation, PreparationFileCommand command) {
+        validateDuplicateFileType(preparation.getId(), command.fileType());
+
+        PreparationFile preparationFile = PreparationFile.create(
+                preparation.getId(),
+                command.fileType(),
+                command.originalFileName(),
+                command.fileKey(),
+                command.fileUrl()
+        );
+
+        return preparationFilePort.save(preparationFile);
+    }
+
+    private void updatePreparationStatusIfReady(Preparation preparation, List<PreparationFile> files) {
+        if (!preparation.satisfiesRequiredFiles(files)) {
+            return;
+        }
+
+        if (preparation.getStatus() == com.gamyeon.preparation.domain.PreparationStatus.CREATED
+                || preparation.getStatus() == com.gamyeon.preparation.domain.PreparationStatus.FAILED) {
+            preparation.markReady();
+            preparationPort.save(preparation);
+        }
     }
 
     private void validateFileSize(PreparationFileType fileType, Long fileSizeBytes) {

@@ -19,10 +19,8 @@ public record PreparationFileRegisterRequest(
         String fileUrl
 ) {
 
-    public PreparationFileCommand toCommand(Long userId, Long intvId) {
+    public PreparationFileCommand toCommand() {
         return new PreparationFileCommand(
-                userId,
-                intvId,
                 fileType,
                 originalFileName,
                 fileKey,
