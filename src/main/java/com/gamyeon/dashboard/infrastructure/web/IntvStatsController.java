@@ -5,7 +5,7 @@ import com.gamyeon.dashboard.application.port.inbound.DailyStat;
 import com.gamyeon.dashboard.application.port.inbound.IntvStatsUseCase;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import com.gamyeon.common.security.CurrentUserId;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +26,7 @@ public class IntvStatsController {
 
     @GetMapping("/stats")
     public ResponseEntity<SuccessResponse<List<DailyStat>>> getIntvStats(
-            @AuthenticationPrincipal Long userId,
+            @CurrentUserId Long userId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
 
