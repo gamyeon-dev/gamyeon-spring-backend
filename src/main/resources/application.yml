@@ -14,6 +14,11 @@ spring:
         service-name: GAMYEON-BACKEND
         instance-id: GAMYEON-BACKEND:${server.port}
         fail-fast: false
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
