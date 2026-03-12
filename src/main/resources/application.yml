@@ -1,15 +1,39 @@
 spring:
   profiles:
-    active: local
+    active: prod
   application:
-    name: gamyeon-backend
+    name: GAMYEON_SPRING_SERVER
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: validate
+      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
     show-sql: false
     properties:
       hibernate:
         format_sql: true
+  cloud:
+    consul:
+      host: ${CONSUL_HOST:localhost}
+      port: 8500
+      discovery:
+        register: true
+        instance-id: ${spring.application.name}:${random.value}
+  config:
+    import: "optional:consul:"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # health와 info 엔드포인트를 노출
+  endpoint:
+    health:
+      show-details: always   # 상태 체크 시 자세한 내용을 보여줌
 
 server:
   port: 8080
