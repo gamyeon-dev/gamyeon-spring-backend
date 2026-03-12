@@ -2,18 +2,12 @@ spring:
   profiles:
     active: prod
   application:
-    name: gamyeon-backend
-  cloud:
-    compatibility-verifier:
-      enabled: false
-    consul:
-      host: ${CONSUL_HOST:localhost}
-      port: ${CONSUL_PORT:8500}
-      config:
-        enabled: false   # 시크릿은 GitHub Secrets → CI/CD 환경변수로 관리
-      discovery:
-        enabled: true
-        instance-id: ${spring.application.name}:${server.port}
+    name: GAMYEON_SPRING_SERVER
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
