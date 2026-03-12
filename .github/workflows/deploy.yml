@@ -52,6 +52,11 @@ jobs:
             echo SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} >> .env
             echo SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} >> .env
             echo SPRING_JPA_HIBERNATE_DDL_AUTO=${{ secrets.SPRING_JPA_HIBERNATE_DDL_AUTO }} >> .env
+            echo S3_BUCKET=${{ secrets.S3_BUCKET }} >> .env
+            echo S3_REGION=${{ secrets.S3_REGION }} >> .env
+            echo S3_PRESIGNED_DURATION_SECONDS=${{ secrets.S3_PRESIGNED_DURATION_SECONDS }} >> .env
+            echo S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} >> .env
+            echo S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} >> .env
             
             # [수정] 2. 최신 이미지 풀
             docker pull ${{ vars.DOCKERHUB_USERNAME }}/gamyeon-spring:latest
