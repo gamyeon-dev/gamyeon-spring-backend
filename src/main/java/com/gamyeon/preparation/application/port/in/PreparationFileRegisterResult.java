@@ -1,12 +1,15 @@
 package com.gamyeon.preparation.application.port.in;
 
+import com.gamyeon.preparation.domain.PreparationFileType;
 import com.gamyeon.preparation.domain.PreparationStatus;
-
-import java.util.List;
 
 public record PreparationFileRegisterResult(
         Long preparationId,
-        PreparationStatus preparationStatus,
-        List<PreparationFileResult> files
+        Long fileId,
+        PreparationFileType fileType,
+        String originalFileName,
+        String fileKey,
+        String fileUrl,
+        PreparationStatus preparationStatus
 ) {
 }

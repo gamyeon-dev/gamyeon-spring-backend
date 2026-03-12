@@ -26,6 +26,7 @@ import com.gamyeon.preparation.domain.PreparationFile;
 import com.gamyeon.preparation.domain.PreparationFileType;
 import com.gamyeon.question.application.port.out.LoadPreparationPort;
 import com.gamyeon.question.application.port.out.PreparationForQuestionGeneration;
+import com.gamyeon.question.application.port.out.PreparationSourceFile;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -121,11 +122,6 @@ public class PreparationApplicationService implements
     }
 
     @Override
-    public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
-        return null;
-    }
-
-    @Override
     @Transactional(readOnly = true)
     public UploadPreparationFileUrlResult issueUploadUrl(UploadPreparationFileUrlCommand command) {
         Intv intv = getOwnedIntv(command.userId(), command.intvId());
@@ -152,7 +148,6 @@ public class PreparationApplicationService implements
         );
     }
 
-    // 질문 생성용 LoadPreparationPort 구현
     @Override
     @Transactional(readOnly = true)
     public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
@@ -171,7 +166,6 @@ public class PreparationApplicationService implements
                         .toList()
         );
     }
-
 
     private Intv getOwnedIntv(Long userId, Long intvId) {
         Intv intv = intvPort.loadById(intvId)
@@ -250,46 +244,6 @@ public class PreparationApplicationService implements
     private String extractContentTypeFromFileName(String originalFileName) {
         String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
         return normalizedFileName.endsWith(PDF_EXTENSION) ? PDF_CONTENT_TYPE : "";
-    }
-
-    private void validateRegisterFileCommands(List<PreparationFileCommand> commands) {
-        if (commands.size() > 3) {
-            throw new PreparationException(PreparationErrorCode.INVALID_FILE_BATCH_SIZE);
-        }
-
-        Set<PreparationFileType> fileTypes = new HashSet<>();
-        for (PreparationFileCommand command : commands) {
-            validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
-            if (!fileTypes.add(command.fileType())) {
-                throw new PreparationException(PreparationErrorCode.DUPLICATE_FILE_TYPE_IN_REQUEST);
-            }
-        }
-    }
-
-    private PreparationFile savePreparationFile(Preparation preparation, PreparationFileCommand command) {
-        validateDuplicateFileType(preparation.getId(), command.fileType());
-
-        PreparationFile preparationFile = PreparationFile.create(
-                preparation.getId(),
-                command.fileType(),
-                command.originalFileName(),
-                command.fileKey(),
-                command.fileUrl()
-        );
-
-        return preparationFilePort.save(preparationFile);
-    }
-
-    private void updatePreparationStatusIfReady(Preparation preparation, List<PreparationFile> files) {
-        if (!preparation.satisfiesRequiredFiles(files)) {
-            return;
-        }
-
-        if (preparation.getStatus() == com.gamyeon.preparation.domain.PreparationStatus.CREATED
-                || preparation.getStatus() == com.gamyeon.preparation.domain.PreparationStatus.FAILED) {
-            preparation.markReady();
-            preparationPort.save(preparation);
-        }
     }
 
     private void validateFileSize(PreparationFileType fileType, Long fileSizeBytes) {

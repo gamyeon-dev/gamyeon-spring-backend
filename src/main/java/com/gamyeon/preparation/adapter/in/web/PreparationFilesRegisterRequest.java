@@ -7,13 +7,13 @@ import jakarta.validation.constraints.NotEmpty;
 import java.util.List;
 
 public record PreparationFilesRegisterRequest(
-        @NotEmpty(message = "저장할 파일은 최소 1개 이상이어야 합니다.")
-        List<@Valid PreparationFileRegisterRequest> files
+        @NotEmpty(message = "등록할 파일은 최소 1개 이상이어야 합니다.")
+        List<@Valid PreparationFileRegisterItemRequest> files
 ) {
 
-    public List<PreparationFileCommand> toCommands() {
+    public List<PreparationFileCommand> toCommands(Long userId, Long intvId) {
         return files.stream()
-                .map(PreparationFileRegisterRequest::toCommand)
+                .map(file -> file.toCommand(userId, intvId))
                 .toList();
     }
 }
