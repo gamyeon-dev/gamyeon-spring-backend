@@ -5,7 +5,14 @@ spring:
     compatibility-verifier:
       enabled: false
     consul:
-      enabled: false
+      host: ${CONSUL_HOST:localhost}
+      port: ${CONSUL_PORT:8500}
+      config:
+        enabled: false
+      discovery:
+        enabled: true
+        instance-id: ${spring.application.name}:${server.port}
+        fail-fast: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:

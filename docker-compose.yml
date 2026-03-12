@@ -6,3 +6,9 @@ services:
       - .env
     ports:
       - "8080:8080"
+    networks:
+      - gamyeon-net
+
+networks:
+  gamyeon-net:
+    external: true
