@@ -16,18 +16,16 @@ import lombok.Getter;
 @Getter
 public class CommonQuestion extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(name = "content", columnDefinition = "text", nullable = false)
-    private String content;
+  @Column(name = "content", columnDefinition = "text", nullable = false)
+  private String content;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false)
-    private CommonQuestionStatus status;
+  @Enumerated(EnumType.STRING)
+  @Column(name = "status", nullable = false)
+  private CommonQuestionStatus status;
 
-    protected CommonQuestion() {}
-
-
+  protected CommonQuestion() {}
 }
