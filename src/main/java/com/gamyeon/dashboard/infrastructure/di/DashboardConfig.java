@@ -12,13 +12,13 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DashboardConfig {
 
-    @Bean
-    public IntvStatsUseCase intvStatsUseCase(IntvStatsPort intvStatsPort) {
-        return new IntvStatsService(intvStatsPort);
-    }
+  @Bean
+  public IntvStatsUseCase intvStatsUseCase(IntvStatsPort intvStatsPort) {
+    return new IntvStatsService(intvStatsPort);
+  }
 
-    @Bean
-    public NoticeUseCase noticeUseCase(NoticeRepository noticeRepository) {
-        return new NoticeService(noticeRepository);
-    }
+  @Bean
+  public NoticeUseCase noticeUseCase(NoticeRepository noticeRepository) {
+    return new NoticeService(noticeRepository);
+  }
 }

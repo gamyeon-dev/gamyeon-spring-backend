@@ -27,247 +27,236 @@ import com.gamyeon.preparation.domain.PreparationFileType;
 import com.gamyeon.question.application.port.out.LoadPreparationPort;
 import com.gamyeon.question.application.port.out.PreparationForQuestionGeneration;
 import com.gamyeon.question.application.port.out.PreparationSourceFile;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import java.util.UUID;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
-public class PreparationApplicationService implements
-        PreparationUseCase,
+public class PreparationApplicationService
+    implements PreparationUseCase,
         PreparationFileUseCase,
         UploadPreparationFileUrlUseCase,
         LoadPreparationPort {
 
-    private static final String PDF_EXTENSION = ".pdf";
-    private static final String PDF_CONTENT_TYPE = "application/pdf";
+  private static final String PDF_EXTENSION = ".pdf";
+  private static final String PDF_CONTENT_TYPE = "application/pdf";
 
-    private final IntvPort intvPort;
-    private final PreparationPort preparationPort;
-    private final PreparationFilePort preparationFilePort;
-    private final StoragePresignedUrlPort storagePresignedUrlPort;
+  private final IntvPort intvPort;
+  private final PreparationPort preparationPort;
+  private final PreparationFilePort preparationFilePort;
+  private final StoragePresignedUrlPort storagePresignedUrlPort;
 
-    public PreparationApplicationService(
-            IntvPort intvPort,
-            PreparationPort preparationPort,
-            PreparationFilePort preparationFilePort,
-            StoragePresignedUrlPort storagePresignedUrlPort
-    ) {
-        this.intvPort = intvPort;
-        this.preparationPort = preparationPort;
-        this.preparationFilePort = preparationFilePort;
-        this.storagePresignedUrlPort = storagePresignedUrlPort;
-    }
+  public PreparationApplicationService(
+      IntvPort intvPort,
+      PreparationPort preparationPort,
+      PreparationFilePort preparationFilePort,
+      StoragePresignedUrlPort storagePresignedUrlPort) {
+    this.intvPort = intvPort;
+    this.preparationPort = preparationPort;
+    this.preparationFilePort = preparationFilePort;
+    this.storagePresignedUrlPort = storagePresignedUrlPort;
+  }
 
-    @Override
-    public void create(Long intvId) {
-        Preparation preparation = Preparation.create(intvId);
-        preparationPort.save(preparation);
-    }
+  @Override
+  public void create(Long intvId) {
+    Preparation preparation = Preparation.create(intvId);
+    preparationPort.save(preparation);
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public PreparationResult get(Long userId, Long intvId) {
-        Intv intv = getOwnedIntv(userId, intvId);
-        Preparation preparation = getPreparationByIntvId(intv.getId());
+  @Override
+  @Transactional(readOnly = true)
+  public PreparationResult get(Long userId, Long intvId) {
+    Intv intv = getOwnedIntv(userId, intvId);
+    Preparation preparation = getPreparationByIntvId(intv.getId());
 
-        List<PreparationFileResult> fileResults = preparationFilePort.loadAllByPreparationId(preparation.getId()).stream()
-                .map(file -> new PreparationFileResult(
+    List<PreparationFileResult> fileResults =
+        preparationFilePort.loadAllByPreparationId(preparation.getId()).stream()
+            .map(
+                file ->
+                    new PreparationFileResult(
                         file.getId(),
                         file.getType(),
                         file.getOriginalFileName(),
-                        file.getFileUrl()
-                ))
-                .toList();
+                        file.getFileUrl()))
+            .toList();
 
-        return new PreparationResult(
-                preparation.getId(),
-                preparation.getIntvId(),
-                preparation.getStatus(),
-                fileResults
-        );
+    return new PreparationResult(
+        preparation.getId(), preparation.getIntvId(), preparation.getStatus(), fileResults);
+  }
+
+  @Override
+  public PreparationFilesRegisterResult registerFiles(List<PreparationFileCommand> commands) {
+    validateRegisterCommands(commands);
+
+    PreparationFileCommand firstCommand = commands.get(0);
+    Intv intv = getOwnedIntv(firstCommand.userId(), firstCommand.intvId());
+    Preparation preparation = getPreparationByIntvId(intv.getId());
+
+    validateDuplicateFileTypesInRequest(commands);
+
+    List<PreparationFileRegisterResult> registeredFiles =
+        commands.stream().map(command -> registerSingleFile(preparation, command)).toList();
+
+    List<PreparationFile> savedFiles =
+        preparationFilePort.loadAllByPreparationId(preparation.getId());
+    if (preparation.satisfiesRequiredFiles(savedFiles)) {
+      preparation.markReady();
+      preparationPort.save(preparation);
     }
 
-    @Override
-    public PreparationFilesRegisterResult registerFiles(List<PreparationFileCommand> commands) {
-        validateRegisterCommands(commands);
+    return new PreparationFilesRegisterResult(
+        preparation.getId(), preparation.getStatus(), registeredFiles);
+  }
 
-        PreparationFileCommand firstCommand = commands.get(0);
-        Intv intv = getOwnedIntv(firstCommand.userId(), firstCommand.intvId());
-        Preparation preparation = getPreparationByIntvId(intv.getId());
+  @Override
+  @Transactional(readOnly = true)
+  public UploadPreparationFileUrlResult issueUploadUrl(UploadPreparationFileUrlCommand command) {
+    Intv intv = getOwnedIntv(command.userId(), command.intvId());
+    Preparation preparation = getPreparationByIntvId(intv.getId());
 
-        validateDuplicateFileTypesInRequest(commands);
+    validateDuplicateFileType(preparation.getId(), command.fileType());
+    validatePdfFile(command.originalFileName(), command.contentType());
+    validateFileSize(command.fileType(), command.fileSizeBytes());
 
-        List<PreparationFileRegisterResult> registeredFiles = commands.stream()
-                .map(command -> registerSingleFile(preparation, command))
-                .toList();
+    String fileKey =
+        createFileKey(preparation.getId(), command.fileType(), command.originalFileName());
+    StoragePresignedUrlResult result =
+        storagePresignedUrlPort.createUploadUrl(
+            new StoragePresignedUrlCommand(fileKey, command.contentType()));
 
-        List<PreparationFile> savedFiles = preparationFilePort.loadAllByPreparationId(preparation.getId());
-        if (preparation.satisfiesRequiredFiles(savedFiles)) {
-            preparation.markReady();
-            preparationPort.save(preparation);
-        }
+    return new UploadPreparationFileUrlResult(
+        preparation.getId(),
+        command.fileType(),
+        command.originalFileName(),
+        result.fileKey(),
+        result.presignedUrl(),
+        result.fileUrl(),
+        result.expiresInSeconds());
+  }
 
-        return new PreparationFilesRegisterResult(
-                preparation.getId(),
-                preparation.getStatus(),
-                registeredFiles
-        );
+  @Override
+  @Transactional(readOnly = true)
+  public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
+    Preparation preparation = getPreparationByIntvId(intvId);
+    List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
+
+    return new PreparationForQuestionGeneration(
+        preparation.getId(),
+        preparation.getIntvId(),
+        preparation.getStatus(),
+        files.stream()
+            .map(file -> new PreparationSourceFile(file.getType(), file.getFileKey()))
+            .toList());
+  }
+
+  private Intv getOwnedIntv(Long userId, Long intvId) {
+    Intv intv =
+        intvPort
+            .loadById(intvId)
+            .orElseThrow(() -> new IntvException(IntvErrorCode.INTV_NOT_FOUND));
+
+    if (!intv.getUserId().equals(userId)) {
+      throw new IntvException(IntvErrorCode.INTV_FORBIDDEN);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public UploadPreparationFileUrlResult issueUploadUrl(UploadPreparationFileUrlCommand command) {
-        Intv intv = getOwnedIntv(command.userId(), command.intvId());
-        Preparation preparation = getPreparationByIntvId(intv.getId());
+    return intv;
+  }
 
-        validateDuplicateFileType(preparation.getId(), command.fileType());
-        validatePdfFile(command.originalFileName(), command.contentType());
-        validateFileSize(command.fileType(), command.fileSizeBytes());
+  private Preparation getPreparationByIntvId(Long intvId) {
+    return preparationPort
+        .loadByIntvId(intvId)
+        .orElseThrow(() -> new PreparationException(PreparationErrorCode.PREPARATION_NOT_FOUND));
+  }
 
-        String fileKey = createFileKey(preparation.getId(), command.fileType(), command.originalFileName());
-        StoragePresignedUrlResult result = storagePresignedUrlPort.createUploadUrl(new StoragePresignedUrlCommand(
-                fileKey,
-                command.contentType()
-        ));
+  private void validateRegisterCommands(List<PreparationFileCommand> commands) {
+    if (commands == null || commands.isEmpty()) {
+      throw new PreparationException(PreparationErrorCode.EMPTY_FILE_REGISTER_REQUEST);
+    }
+  }
 
-        return new UploadPreparationFileUrlResult(
-                preparation.getId(),
-                command.fileType(),
-                command.originalFileName(),
-                result.fileKey(),
-                result.presignedUrl(),
-                result.fileUrl(),
-                result.expiresInSeconds()
-        );
+  private void validateDuplicateFileTypesInRequest(List<PreparationFileCommand> commands) {
+    Set<PreparationFileType> seen = new HashSet<>();
+    for (PreparationFileCommand command : commands) {
+      if (!seen.add(command.fileType())) {
+        throw new PreparationException(PreparationErrorCode.DUPLICATE_FILE_TYPE_IN_REQUEST);
+      }
+    }
+  }
+
+  private PreparationFileRegisterResult registerSingleFile(
+      Preparation preparation, PreparationFileCommand command) {
+    validateDuplicateFileType(preparation.getId(), command.fileType());
+    validatePdfFile(
+        command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
+
+    PreparationFile preparationFile =
+        PreparationFile.create(
+            preparation.getId(),
+            command.fileType(),
+            command.originalFileName(),
+            command.fileKey(),
+            command.fileUrl());
+
+    PreparationFile savedFile = preparationFilePort.save(preparationFile);
+
+    return new PreparationFileRegisterResult(
+        preparation.getId(),
+        savedFile.getId(),
+        savedFile.getType(),
+        savedFile.getOriginalFileName(),
+        savedFile.getFileKey(),
+        savedFile.getFileUrl(),
+        preparation.getStatus());
+  }
+
+  private void validateDuplicateFileType(Long preparationId, PreparationFileType fileType) {
+    boolean exists = preparationFilePort.existsByPreparationIdAndType(preparationId, fileType);
+    if (exists) {
+      throw new PreparationException(PreparationErrorCode.PREPARATION_FILE_TYPE_ALREADY_EXISTS);
+    }
+  }
+
+  private void validatePdfFile(String originalFileName, String contentType) {
+    String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
+    if (!normalizedFileName.endsWith(PDF_EXTENSION)) {
+      throw new PreparationException(PreparationErrorCode.INVALID_FILE_EXTENSION);
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public PreparationForQuestionGeneration loadByIntvId(Long intvId) {
-        Preparation preparation = getPreparationByIntvId(intvId);
-        List<PreparationFile> files = preparationFilePort.loadAllByPreparationId(preparation.getId());
-
-        return new PreparationForQuestionGeneration(
-                preparation.getId(),
-                preparation.getIntvId(),
-                preparation.getStatus(),
-                files.stream()
-                        .map(file -> new PreparationSourceFile(
-                                file.getType(),
-                                file.getFileKey()
-                        ))
-                        .toList()
-        );
+    if (!PDF_CONTENT_TYPE.equalsIgnoreCase(contentType)) {
+      throw new PreparationException(PreparationErrorCode.INVALID_CONTENT_TYPE);
     }
+  }
 
-    private Intv getOwnedIntv(Long userId, Long intvId) {
-        Intv intv = intvPort.loadById(intvId)
-                .orElseThrow(() -> new IntvException(IntvErrorCode.INTV_NOT_FOUND));
+  private String extractContentTypeFromFileName(String originalFileName) {
+    String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
+    return normalizedFileName.endsWith(PDF_EXTENSION) ? PDF_CONTENT_TYPE : "";
+  }
 
-        if (!intv.getUserId().equals(userId)) {
-            throw new IntvException(IntvErrorCode.INTV_FORBIDDEN);
-        }
-
-        return intv;
+  private void validateFileSize(PreparationFileType fileType, Long fileSizeBytes) {
+    if (fileSizeBytes > fileType.maxFileSizeBytes()) {
+      throw new PreparationException(PreparationErrorCode.FILE_SIZE_EXCEEDED);
     }
+  }
 
-    private Preparation getPreparationByIntvId(Long intvId) {
-        return preparationPort.loadByIntvId(intvId)
-                .orElseThrow(() -> new PreparationException(PreparationErrorCode.PREPARATION_NOT_FOUND));
-    }
+  private String createFileKey(
+      Long preparationId, PreparationFileType fileType, String originalFileName) {
+    String sanitizedFileName = sanitizeFileName(originalFileName);
+    String fileTypePath = fileType.name().toLowerCase(Locale.ROOT);
+    return "preparations/%d/%s/%s-%s"
+        .formatted(preparationId, fileTypePath, UUID.randomUUID(), sanitizedFileName);
+  }
 
-    private void validateRegisterCommands(List<PreparationFileCommand> commands) {
-        if (commands == null || commands.isEmpty()) {
-            throw new PreparationException(PreparationErrorCode.EMPTY_FILE_REGISTER_REQUEST);
-        }
-    }
-
-    private void validateDuplicateFileTypesInRequest(List<PreparationFileCommand> commands) {
-        Set<PreparationFileType> seen = new HashSet<>();
-        for (PreparationFileCommand command : commands) {
-            if (!seen.add(command.fileType())) {
-                throw new PreparationException(PreparationErrorCode.DUPLICATE_FILE_TYPE_IN_REQUEST);
-            }
-        }
-    }
-
-    private PreparationFileRegisterResult registerSingleFile(Preparation preparation, PreparationFileCommand command) {
-        validateDuplicateFileType(preparation.getId(), command.fileType());
-        validatePdfFile(command.originalFileName(), extractContentTypeFromFileName(command.originalFileName()));
-
-        PreparationFile preparationFile = PreparationFile.create(
-                preparation.getId(),
-                command.fileType(),
-                command.originalFileName(),
-                command.fileKey(),
-                command.fileUrl()
-        );
-
-        PreparationFile savedFile = preparationFilePort.save(preparationFile);
-
-        return new PreparationFileRegisterResult(
-                preparation.getId(),
-                savedFile.getId(),
-                savedFile.getType(),
-                savedFile.getOriginalFileName(),
-                savedFile.getFileKey(),
-                savedFile.getFileUrl(),
-                preparation.getStatus()
-        );
-    }
-
-    private void validateDuplicateFileType(Long preparationId, PreparationFileType fileType) {
-        boolean exists = preparationFilePort.existsByPreparationIdAndType(preparationId, fileType);
-        if (exists) {
-            throw new PreparationException(PreparationErrorCode.PREPARATION_FILE_TYPE_ALREADY_EXISTS);
-        }
-    }
-
-    private void validatePdfFile(String originalFileName, String contentType) {
-        String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
-        if (!normalizedFileName.endsWith(PDF_EXTENSION)) {
-            throw new PreparationException(PreparationErrorCode.INVALID_FILE_EXTENSION);
-        }
-
-        if (!PDF_CONTENT_TYPE.equalsIgnoreCase(contentType)) {
-            throw new PreparationException(PreparationErrorCode.INVALID_CONTENT_TYPE);
-        }
-    }
-
-    private String extractContentTypeFromFileName(String originalFileName) {
-        String normalizedFileName = originalFileName.toLowerCase(Locale.ROOT);
-        return normalizedFileName.endsWith(PDF_EXTENSION) ? PDF_CONTENT_TYPE : "";
-    }
-
-    private void validateFileSize(PreparationFileType fileType, Long fileSizeBytes) {
-        if (fileSizeBytes > fileType.maxFileSizeBytes()) {
-            throw new PreparationException(PreparationErrorCode.FILE_SIZE_EXCEEDED);
-        }
-    }
-
-    private String createFileKey(Long preparationId, PreparationFileType fileType, String originalFileName) {
-        String sanitizedFileName = sanitizeFileName(originalFileName);
-        String fileTypePath = fileType.name().toLowerCase(Locale.ROOT);
-        return "preparations/%d/%s/%s-%s".formatted(
-                preparationId,
-                fileTypePath,
-                UUID.randomUUID(),
-                sanitizedFileName
-        );
-    }
-
-    private String sanitizeFileName(String originalFileName) {
-        String normalized = Normalizer.normalize(originalFileName, Normalizer.Form.NFKC);
-        String sanitized = normalized.replaceAll("[\\\\/:*?\"<>|\\s]+", "-");
-        sanitized = sanitized.replaceAll("-{2,}", "-");
-        sanitized = sanitized.replaceAll("^[.-]+|[.-]+$", "");
-        return sanitized.isBlank() ? "file" : sanitized;
-    }
+  private String sanitizeFileName(String originalFileName) {
+    String normalized = Normalizer.normalize(originalFileName, Normalizer.Form.NFKC);
+    String sanitized = normalized.replaceAll("[\\\\/:*?\"<>|\\s]+", "-");
+    sanitized = sanitized.replaceAll("-{2,}", "-");
+    sanitized = sanitized.replaceAll("^[.-]+|[.-]+$", "");
+    return sanitized.isBlank() ? "file" : sanitized;
+  }
 }

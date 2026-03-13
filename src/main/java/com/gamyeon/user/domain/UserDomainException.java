@@ -4,7 +4,7 @@ import com.gamyeon.common.exception.BaseException;
 
 public class UserDomainException extends BaseException {
 
-    public UserDomainException(UserErrorCode errorCode) {
-        super(errorCode);
-    }
+  public UserDomainException(UserErrorCode errorCode) {
+    super(errorCode);
+  }
 }

@@ -11,22 +11,22 @@ import lombok.Getter;
 @Getter
 public class QuestionSet extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long intvId;
+  private Long intvId;
 
-    private String content;
+  private String content;
 
-    protected QuestionSet() {}
+  protected QuestionSet() {}
 
-    private QuestionSet(Long intvId, String content) {
-        this.intvId = intvId;
-        this.content = content;
-    }
+  private QuestionSet(Long intvId, String content) {
+    this.intvId = intvId;
+    this.content = content;
+  }
 
-    public static QuestionSet save(Long intvId, String content){
-        return new QuestionSet(intvId, content);
-    }
+  public static QuestionSet save(Long intvId, String content) {
+    return new QuestionSet(intvId, content);
+  }
 }

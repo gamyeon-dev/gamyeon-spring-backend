@@ -4,7 +4,7 @@ import com.gamyeon.common.exception.BaseException;
 
 public class IntvException extends BaseException {
 
-    public IntvException(IntvErrorCode errorCode) {
-        super(errorCode);
-    }
+  public IntvException(IntvErrorCode errorCode) {
+    super(errorCode);
+  }
 }

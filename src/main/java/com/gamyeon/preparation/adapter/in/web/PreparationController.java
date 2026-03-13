@@ -19,48 +19,39 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/preparations")
 public class PreparationController {
 
-    private final PreparationFileUseCase preparationFileUseCase;
-    private final UploadPreparationFileUrlUseCase uploadPreparationFileUrlUseCase;
+  private final PreparationFileUseCase preparationFileUseCase;
+  private final UploadPreparationFileUrlUseCase uploadPreparationFileUrlUseCase;
 
-    public PreparationController(
-            PreparationFileUseCase preparationFileUseCase,
-            UploadPreparationFileUrlUseCase uploadPreparationFileUrlUseCase
-    ) {
-        this.preparationFileUseCase = preparationFileUseCase;
-        this.uploadPreparationFileUrlUseCase = uploadPreparationFileUrlUseCase;
-    }
+  public PreparationController(
+      PreparationFileUseCase preparationFileUseCase,
+      UploadPreparationFileUrlUseCase uploadPreparationFileUrlUseCase) {
+    this.preparationFileUseCase = preparationFileUseCase;
+    this.uploadPreparationFileUrlUseCase = uploadPreparationFileUrlUseCase;
+  }
 
-    @PostMapping("/{intvId}/files")
-    public ResponseEntity<ApiResponse<PreparationFileRegisterResponse>> registerFile(
-            @CurrentUserId Long userId,
-            @PathVariable Long intvId,
-            @Valid @RequestBody PreparationFileRegisterRequest request
-    ) {
-        PreparationFilesRegisterResult result = preparationFileUseCase.registerFiles(
-                request.files().stream()
-                        .map(file -> file.toCommand(userId, intvId))
-                        .toList()
-        );
+  @PostMapping("/{intvId}/files")
+  public ResponseEntity<ApiResponse<PreparationFileRegisterResponse>> registerFile(
+      @CurrentUserId Long userId,
+      @PathVariable Long intvId,
+      @Valid @RequestBody PreparationFileRegisterRequest request) {
+    PreparationFilesRegisterResult result =
+        preparationFileUseCase.registerFiles(
+            request.files().stream().map(file -> file.toCommand(userId, intvId)).toList());
 
-        return ApiResponse.success(
-                PreparationSuccessCode.PREPARATION_FILE_REGISTERED,
-                PreparationFileRegisterResponse.from(result)
-        );
-    }
+    return ApiResponse.success(
+        PreparationSuccessCode.PREPARATION_FILE_REGISTERED,
+        PreparationFileRegisterResponse.from(result));
+  }
 
-    @PostMapping("/{intvId}/files/presigned-url")
-    public ResponseEntity<ApiResponse<PreparationResponse>> issueUploadUrl(
-            @CurrentUserId Long userId,
-            @PathVariable Long intvId,
-            @Valid @RequestBody PreparationRequest request
-    ) {
-        UploadPreparationFileUrlResult result = uploadPreparationFileUrlUseCase.issueUploadUrl(
-                request.toCommand(userId, intvId)
-        );
+  @PostMapping("/{intvId}/files/presigned-url")
+  public ResponseEntity<ApiResponse<PreparationResponse>> issueUploadUrl(
+      @CurrentUserId Long userId,
+      @PathVariable Long intvId,
+      @Valid @RequestBody PreparationRequest request) {
+    UploadPreparationFileUrlResult result =
+        uploadPreparationFileUrlUseCase.issueUploadUrl(request.toCommand(userId, intvId));
 
-        return ApiResponse.success(
-                PreparationSuccessCode.PREPARATION_UPLOAD_URL_ISSUED,
-                PreparationResponse.from(result)
-        );
-    }
+    return ApiResponse.success(
+        PreparationSuccessCode.PREPARATION_UPLOAD_URL_ISSUED, PreparationResponse.from(result));
+  }
 }

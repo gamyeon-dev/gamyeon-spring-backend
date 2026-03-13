@@ -1,9 +1,9 @@
 package com.gamyeon.dashboard.domain;
 
 public enum NoticeCategory {
-    NOTICE,
-    UPDATE,
-    GUIDE,
-    EVENT,
-    MAINTENANCE
+  NOTICE,
+  UPDATE,
+  GUIDE,
+  EVENT,
+  MAINTENANCE
 }

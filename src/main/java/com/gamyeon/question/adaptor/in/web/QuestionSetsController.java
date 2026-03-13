@@ -15,24 +15,19 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/v1/questions")
 public class QuestionSetsController {
 
-    private final SaveQuestionSetUseCase saveQuestionSetUseCase;
+  private final SaveQuestionSetUseCase saveQuestionSetUseCase;
 
-    public QuestionSetsController(SaveQuestionSetUseCase saveQuestionSetUseCase) {
-        this.saveQuestionSetUseCase = saveQuestionSetUseCase;
-    }
+  public QuestionSetsController(SaveQuestionSetUseCase saveQuestionSetUseCase) {
+    this.saveQuestionSetUseCase = saveQuestionSetUseCase;
+  }
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<Void>> saveQuestionSet(
-            @AuthenticationPrincipal Long userId,
-            @Valid @RequestBody SaveQuestionSetRequest request
-    ) {
-        saveQuestionSetUseCase.saveQuestionSet(request.intvId(), request.content());
-        return ApiResponse.success(com.gamyeon.preparation.domain.PreparationSuccessCode.PREPARATION_FILE_REGISTERED);
-    }
+  @PostMapping
+  public ResponseEntity<ApiResponse<Void>> saveQuestionSet(
+      @AuthenticationPrincipal Long userId, @Valid @RequestBody SaveQuestionSetRequest request) {
+    saveQuestionSetUseCase.saveQuestionSet(request.intvId(), request.content());
+    return ApiResponse.success(
+        com.gamyeon.preparation.domain.PreparationSuccessCode.PREPARATION_FILE_REGISTERED);
+  }
 
-    public record SaveQuestionSetRequest(
-            Long intvId,
-            @NotBlank String content
-    ) {
-    }
+  public record SaveQuestionSetRequest(Long intvId, @NotBlank String content) {}
 }

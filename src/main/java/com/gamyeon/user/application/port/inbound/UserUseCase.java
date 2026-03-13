@@ -2,9 +2,9 @@ package com.gamyeon.user.application.port.inbound;
 
 public interface UserUseCase {
 
-    UserInfo getMyInfo(Long userId);
+  UserInfo getMyInfo(Long userId);
 
-    UserInfo updateNickname(NicknameUpdateCommand command);
+  UserInfo updateNickname(NicknameUpdateCommand command);
 
-    void withdraw(Long userId);
+  void withdraw(Long userId);
 }

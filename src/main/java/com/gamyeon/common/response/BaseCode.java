@@ -2,8 +2,7 @@ package com.gamyeon.common.response;
 
 public interface BaseCode {
 
-    String getCode();
+  String getCode();
 
-    String getMessage();
-
+  String getMessage();
 }

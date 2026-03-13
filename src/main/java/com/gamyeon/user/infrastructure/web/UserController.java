@@ -21,41 +21,38 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/v1/users")
 public class UserController {
 
-    private final UserUseCase userUseCase;
+  private final UserUseCase userUseCase;
 
-    public UserController(UserUseCase userUseCase) {
-        this.userUseCase = userUseCase;
-    }
+  public UserController(UserUseCase userUseCase) {
+    this.userUseCase = userUseCase;
+  }
 
-    @GetMapping("/me")
-    public ResponseEntity<SuccessResponse<UserResponse>> getMyInfo(
-            @CurrentUserId Long userId) {
+  @GetMapping("/me")
+  public ResponseEntity<SuccessResponse<UserResponse>> getMyInfo(@CurrentUserId Long userId) {
 
-        UserInfo userInfo = userUseCase.getMyInfo(userId);
-        return ResponseEntity.ok(SuccessResponse.of(UserResponse.from(userInfo)));
-    }
+    UserInfo userInfo = userUseCase.getMyInfo(userId);
+    return ResponseEntity.ok(SuccessResponse.of(UserResponse.from(userInfo)));
+  }
 
-    @PatchMapping("/me/nickname")
-    public ResponseEntity<SuccessResponse<UserResponse>> updateNickname(
-            @CurrentUserId Long userId,
-            @Valid @RequestBody NicknameUpdateRequest request) {
+  @PatchMapping("/me/nickname")
+  public ResponseEntity<SuccessResponse<UserResponse>> updateNickname(
+      @CurrentUserId Long userId, @Valid @RequestBody NicknameUpdateRequest request) {
 
-        NicknameUpdateCommand command = NicknameUpdateCommand.of(userId, request.nickname());
-        UserInfo userInfo = userUseCase.updateNickname(command);
-        return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_NICKNAME_UPDATED, UserResponse.from(userInfo)));
-    }
+    NicknameUpdateCommand command = NicknameUpdateCommand.of(userId, request.nickname());
+    UserInfo userInfo = userUseCase.updateNickname(command);
+    return ResponseEntity.ok(
+        SuccessResponse.of(UserSuccessCode.USER_NICKNAME_UPDATED, UserResponse.from(userInfo)));
+  }
 
-    @DeleteMapping("/me")
-    public ResponseEntity<SuccessResponse<Void>> withdraw(
-            @CurrentUserId Long userId) {
+  @DeleteMapping("/me")
+  public ResponseEntity<SuccessResponse<Void>> withdraw(@CurrentUserId Long userId) {
 
-        userUseCase.withdraw(userId);
-        return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_WITHDREW, null));
-    }
+    userUseCase.withdraw(userId);
+    return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_WITHDREW, null));
+  }
 
-    public record NicknameUpdateRequest(
-            @NotBlank
-            @Pattern(regexp = "^[가-힣a-zA-Z0-9]{1,8}$", message = "닉네임은 1~8자의 한글, 영어, 숫자만 허용됩니다.")
-            String nickname
-    ) {}
+  public record NicknameUpdateRequest(
+      @NotBlank
+          @Pattern(regexp = "^[가-힣a-zA-Z0-9]{1,8}$", message = "닉네임은 1~8자의 한글, 영어, 숫자만 허용됩니다.")
+          String nickname) {}
 }

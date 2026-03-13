@@ -16,22 +16,22 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @EnableConfigurationProperties(StorageProperties.class)
 public class PreparationConfig {
 
-    @Bean
-    public S3Presigner s3Presigner(StorageProperties storageProperties) {
-        Region region = Region.of(storageProperties.region());
-        return S3Presigner.builder()
-                .region(region)
-                .credentialsProvider(credentialsProvider(storageProperties))
-                .build();
+  @Bean
+  public S3Presigner s3Presigner(StorageProperties storageProperties) {
+    Region region = Region.of(storageProperties.region());
+    return S3Presigner.builder()
+        .region(region)
+        .credentialsProvider(credentialsProvider(storageProperties))
+        .build();
+  }
+
+  private AwsCredentialsProvider credentialsProvider(StorageProperties storageProperties) {
+    if (StringUtils.hasText(storageProperties.accessKey())
+        && StringUtils.hasText(storageProperties.secretKey())) {
+      return StaticCredentialsProvider.create(
+          AwsBasicCredentials.create(storageProperties.accessKey(), storageProperties.secretKey()));
     }
 
-    private AwsCredentialsProvider credentialsProvider(StorageProperties storageProperties) {
-        if (StringUtils.hasText(storageProperties.accessKey()) && StringUtils.hasText(storageProperties.secretKey())) {
-            return StaticCredentialsProvider.create(
-                    AwsBasicCredentials.create(storageProperties.accessKey(), storageProperties.secretKey())
-            );
-        }
-
-        return DefaultCredentialsProvider.create();
-    }
+    return DefaultCredentialsProvider.create();
+  }
 }

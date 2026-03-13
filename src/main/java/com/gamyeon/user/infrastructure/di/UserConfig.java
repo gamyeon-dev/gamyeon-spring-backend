@@ -21,38 +21,40 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableConfigurationProperties({JwtProperties.class, OAuthProperties.class})
 public class UserConfig {
 
-    @Bean
-    public JwtProvider jwtProvider(JwtProperties jwtProperties) {
-        return new JwtProvider(jwtProperties);
-    }
+  @Bean
+  public JwtProvider jwtProvider(JwtProperties jwtProperties) {
+    return new JwtProvider(jwtProperties);
+  }
 
-    @Bean
-    public NicknameResolver nicknameResolver() {
-        return new NicknameResolver();
-    }
+  @Bean
+  public NicknameResolver nicknameResolver() {
+    return new NicknameResolver();
+  }
 
-    @Bean
-    public WebClient webClient() {
-        return WebClient.builder().build();
-    }
+  @Bean
+  public WebClient webClient() {
+    return WebClient.builder().build();
+  }
 
-    @Bean
-    public OAuthPort oAuthAdapter(WebClient webClient, OAuthProperties oAuthProperties) {
-        return new OAuthAdapter(webClient, oAuthProperties);
-    }
+  @Bean
+  public OAuthPort oAuthAdapter(WebClient webClient, OAuthProperties oAuthProperties) {
+    return new OAuthAdapter(webClient, oAuthProperties);
+  }
 
-    @Bean
-    public AuthUseCase authUseCase(UserRepository userRepository,
-                                   RefreshTokenRepository refreshTokenRepository,
-                                   OAuthPort oAuthPort,
-                                   JwtProvider jwtProvider,
-                                   NicknameResolver nicknameResolver) {
-        return new AuthService(userRepository, refreshTokenRepository, oAuthPort, jwtProvider, nicknameResolver);
-    }
+  @Bean
+  public AuthUseCase authUseCase(
+      UserRepository userRepository,
+      RefreshTokenRepository refreshTokenRepository,
+      OAuthPort oAuthPort,
+      JwtProvider jwtProvider,
+      NicknameResolver nicknameResolver) {
+    return new AuthService(
+        userRepository, refreshTokenRepository, oAuthPort, jwtProvider, nicknameResolver);
+  }
 
-    @Bean
-    public UserUseCase userUseCase(UserRepository userRepository,
-                                   RefreshTokenRepository refreshTokenRepository) {
-        return new UserService(userRepository, refreshTokenRepository);
-    }
+  @Bean
+  public UserUseCase userUseCase(
+      UserRepository userRepository, RefreshTokenRepository refreshTokenRepository) {
+    return new UserService(userRepository, refreshTokenRepository);
+  }
 }

@@ -5,5 +5,5 @@ import com.gamyeon.intv.application.dto.result.IntvInfo;
 
 public interface UpdateTitleUseCase {
 
-    IntvInfo updateTitle(UpdateIntvCommand command);
+  IntvInfo updateTitle(UpdateIntvCommand command);
 }
