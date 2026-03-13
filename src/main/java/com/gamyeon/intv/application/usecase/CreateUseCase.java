@@ -5,6 +5,5 @@ import com.gamyeon.intv.application.dto.result.IntvInfo;
 
 public interface CreateUseCase {
 
-    IntvInfo create(CreateIntvCommand command);
-
+  IntvInfo create(CreateIntvCommand command);
 }

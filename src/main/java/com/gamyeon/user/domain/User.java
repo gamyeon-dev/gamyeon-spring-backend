@@ -8,7 +8,6 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-
 import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
@@ -16,83 +15,102 @@ import java.util.regex.Pattern;
 @Table(name = "users")
 public class User extends BaseTimeEntity {
 
-    private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{1,8}$");
+  private static final Pattern NICKNAME_PATTERN = Pattern.compile("^[가-힣a-zA-Z0-9]{1,8}$");
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+  @Column(nullable = false, unique = true)
+  private String email;
 
-    @Column(nullable = false, length = 8)
-    private String nickname;
+  @Column(nullable = false, length = 8)
+  private String nickname;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private OAuthProvider provider;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private OAuthProvider provider;
 
-    @Column(nullable = false)
-    private String providerId;
+  @Column(nullable = false)
+  private String providerId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private UserStatus status;
+  @Enumerated(EnumType.STRING)
+  @Column(nullable = false)
+  private UserStatus status;
 
-    @Column
-    private LocalDateTime withdrawnAt;
+  @Column private LocalDateTime withdrawnAt;
 
-    protected User() {
+  protected User() {}
+
+  private User(String email, String nickname, OAuthProvider provider, String providerId) {
+    this.email = email;
+    this.nickname = nickname;
+    this.provider = provider;
+    this.providerId = providerId;
+    this.status = UserStatus.ACTIVE;
+  }
+
+  public static User create(
+      String email, String nickname, OAuthProvider provider, String providerId) {
+    return new User(email, nickname, provider, providerId);
+  }
+
+  public void updateNickname(String nickname) {
+    validateNickname(nickname);
+    this.nickname = nickname;
+  }
+
+  public void withdraw() {
+    if (this.status == UserStatus.WITHDREW) {
+      throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
     }
+    this.status = UserStatus.WITHDREW;
+    this.withdrawnAt = LocalDateTime.now();
+  }
 
-    private User(String email, String nickname, OAuthProvider provider, String providerId) {
-        this.email = email;
-        this.nickname = nickname;
-        this.provider = provider;
-        this.providerId = providerId;
-        this.status = UserStatus.ACTIVE;
+  public void validateNickname(String nickname) {
+    if (nickname == null || !NICKNAME_PATTERN.matcher(nickname).matches()) {
+      throw new UserDomainException(UserErrorCode.INVALID_NICKNAME_FORMAT);
     }
+  }
 
-    public static User create(String email, String nickname, OAuthProvider provider, String providerId) {
-        return new User(email, nickname, provider, providerId);
-    }
+  public boolean isActive() {
+    return this.status == UserStatus.ACTIVE || this.status == UserStatus.WARNED;
+  }
 
-    public void updateNickname(String nickname) {
-        validateNickname(nickname);
-        this.nickname = nickname;
-    }
+  public boolean isBanned() {
+    return this.status == UserStatus.BANNED;
+  }
 
-    public void withdraw() {
-        if (this.status == UserStatus.WITHDREW) {
-            throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
-        }
-        this.status = UserStatus.WITHDREW;
-        this.withdrawnAt = LocalDateTime.now();
-    }
+  public boolean isWithdrew() {
+    return this.status == UserStatus.WITHDREW;
+  }
 
-    public void validateNickname(String nickname) {
-        if (nickname == null || !NICKNAME_PATTERN.matcher(nickname).matches()) {
-            throw new UserDomainException(UserErrorCode.INVALID_NICKNAME_FORMAT);
-        }
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public boolean isActive() {
-        return this.status == UserStatus.ACTIVE || this.status == UserStatus.WARNED;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public boolean isBanned() {
-        return this.status == UserStatus.BANNED;
-    }
+  public String getNickname() {
+    return nickname;
+  }
 
-    public boolean isWithdrew() {
-        return this.status == UserStatus.WITHDREW;
-    }
+  public OAuthProvider getProvider() {
+    return provider;
+  }
 
-    public Long getId() { return id; }
-    public String getEmail() { return email; }
-    public String getNickname() { return nickname; }
-    public OAuthProvider getProvider() { return provider; }
-    public String getProviderId() { return providerId; }
-    public UserStatus getStatus() { return status; }
-    public LocalDateTime getWithdrawnAt() { return withdrawnAt; }
+  public String getProviderId() {
+    return providerId;
+  }
+
+  public UserStatus getStatus() {
+    return status;
+  }
+
+  public LocalDateTime getWithdrawnAt() {
+    return withdrawnAt;
+  }
 }

@@ -7,77 +7,74 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import lombok.Getter;
-
 import java.util.List;
+import lombok.Getter;
 
 @Entity
 @Getter
 public class Preparation extends BaseEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    private Long intvId;
+  private Long intvId;
 
-    @Enumerated(EnumType.STRING)
-    private PreparationStatus status;
+  @Enumerated(EnumType.STRING)
+  private PreparationStatus status;
 
-    protected Preparation() {
+  protected Preparation() {}
+
+  private Preparation(Long intvId, PreparationStatus status) {
+    this.intvId = intvId;
+    this.status = status;
+  }
+
+  public static Preparation create(Long intvId) {
+    return new Preparation(intvId, PreparationStatus.CREATED);
+  }
+
+  public void markReady() {
+    if (this.status != PreparationStatus.CREATED && this.status != PreparationStatus.FAILED) {
+      throw new PreparationException(PreparationErrorCode.DO_NOT_READY);
     }
+    this.status = PreparationStatus.READY;
+  }
 
-    private Preparation(Long intvId, PreparationStatus status) {
-        this.intvId = intvId;
-        this.status = status;
+  public void startQuestionGeneration() {
+    if (this.status != PreparationStatus.READY) {
+      throw new PreparationException(PreparationErrorCode.DO_NOT_GENERATING);
     }
+    this.status = PreparationStatus.QUESTION_GENERATING;
+  }
 
-    public static Preparation create(Long intvId) {
-        return new Preparation(intvId, PreparationStatus.CREATED);
+  public void completeQuestionGeneration() {
+    if (this.status != PreparationStatus.QUESTION_GENERATING) {
+      throw new PreparationException(PreparationErrorCode.DO_NOT_GENERATED);
     }
+    this.status = PreparationStatus.QUESTION_GENERATED;
+  }
 
-    public void markReady() {
-        if (this.status != PreparationStatus.CREATED && this.status != PreparationStatus.FAILED) {
-            throw new PreparationException(PreparationErrorCode.DO_NOT_READY);
-        }
-        this.status = PreparationStatus.READY;
+  public void failQuestionGeneration() {
+    if (this.status != PreparationStatus.QUESTION_GENERATING) {
+      throw new PreparationException(PreparationErrorCode.DO_NOT_FAILED);
     }
+    this.status = PreparationStatus.FAILED;
+  }
 
-    public void startQuestionGeneration() {
-        if (this.status != PreparationStatus.READY) {
-            throw new PreparationException(PreparationErrorCode.DO_NOT_GENERATING);
-        }
-        this.status = PreparationStatus.QUESTION_GENERATING;
-    }
+  public boolean satisfiesRequiredFiles(List<PreparationFile> files) {
+    return files.stream().anyMatch(file -> file.isType(PreparationFileType.RESUME));
+  }
 
-    public void completeQuestionGeneration() {
-        if (this.status != PreparationStatus.QUESTION_GENERATING) {
-            throw new PreparationException(PreparationErrorCode.DO_NOT_GENERATED);
-        }
-        this.status = PreparationStatus.QUESTION_GENERATED;
-    }
+  public Long getId() {
+    return id;
+  }
 
-    public void failQuestionGeneration() {
-        if (this.status != PreparationStatus.QUESTION_GENERATING) {
-            throw new PreparationException(PreparationErrorCode.DO_NOT_FAILED);
-        }
-        this.status = PreparationStatus.FAILED;
-    }
+  public Long getIntvId() {
+    return intvId;
+  }
 
-    public boolean satisfiesRequiredFiles(List<PreparationFile> files) {
-        return files.stream()
-                .anyMatch(file -> file.isType(PreparationFileType.RESUME));
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public Long getIntvId() {
-        return intvId;
-    }
-
-    public PreparationStatus getStatus() {
-        return status;
-    }
+  public PreparationStatus getStatus() {
+    return status;
+  }
 }

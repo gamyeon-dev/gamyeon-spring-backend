@@ -18,98 +18,104 @@ import com.gamyeon.user.infrastructure.security.JwtProvider;
 
 public class AuthService implements AuthUseCase {
 
-    private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
-    private final OAuthPort oAuthPort;
-    private final JwtProvider jwtProvider;
-    private final NicknameResolver nicknameResolver;
+  private final UserRepository userRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
+  private final OAuthPort oAuthPort;
+  private final JwtProvider jwtProvider;
+  private final NicknameResolver nicknameResolver;
 
-    public AuthService(UserRepository userRepository,
-                       RefreshTokenRepository refreshTokenRepository,
-                       OAuthPort oAuthPort,
-                       JwtProvider jwtProvider,
-                       NicknameResolver nicknameResolver) {
-        this.userRepository = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-        this.oAuthPort = oAuthPort;
-        this.jwtProvider = jwtProvider;
-        this.nicknameResolver = nicknameResolver;
-    }
+  public AuthService(
+      UserRepository userRepository,
+      RefreshTokenRepository refreshTokenRepository,
+      OAuthPort oAuthPort,
+      JwtProvider jwtProvider,
+      NicknameResolver nicknameResolver) {
+    this.userRepository = userRepository;
+    this.refreshTokenRepository = refreshTokenRepository;
+    this.oAuthPort = oAuthPort;
+    this.jwtProvider = jwtProvider;
+    this.nicknameResolver = nicknameResolver;
+  }
 
-    public LoginResult login(OAuthLoginCommand command) {
-        OAuthProvider provider = command.getProvider();
-        String authCode = command.getAuthorizationCode();
+  public LoginResult login(OAuthLoginCommand command) {
+    OAuthProvider provider = command.getProvider();
+    String authCode = command.getAuthorizationCode();
 
-        String oauthAccessToken = oAuthPort.getAccessToken(provider, authCode);
-        OAuthPort.OAuthUserInfo oAuthUserInfo = oAuthPort.getUserInfo(provider, oauthAccessToken);
+    String oauthAccessToken = oAuthPort.getAccessToken(provider, authCode);
+    OAuthPort.OAuthUserInfo oAuthUserInfo = oAuthPort.getUserInfo(provider, oauthAccessToken);
 
-        String email = resolveEmail(provider, oAuthUserInfo);
-        String nickname = nicknameResolver.resolve(oAuthUserInfo.getNickname(), email);
+    String email = resolveEmail(provider, oAuthUserInfo);
+    String nickname = nicknameResolver.resolve(oAuthUserInfo.getNickname(), email);
 
-        User user = userRepository.findByProviderAndProviderId(provider, oAuthUserInfo.getProviderId())
-                .orElseGet(() -> {
-                    User newUser = User.create(
-                            email,
-                            nickname,
-                            provider,
-                            oAuthUserInfo.getProviderId()
-                    );
-                    return userRepository.save(newUser);
+    User user =
+        userRepository
+            .findByProviderAndProviderId(provider, oAuthUserInfo.getProviderId())
+            .orElseGet(
+                () -> {
+                  User newUser =
+                      User.create(email, nickname, provider, oAuthUserInfo.getProviderId());
+                  return userRepository.save(newUser);
                 });
 
-        ensureLoginAllowed(user);
+    ensureLoginAllowed(user);
 
-        return issueTokens(user);
+    return issueTokens(user);
+  }
+
+  public LoginResult reissue(String refreshTokenValue) {
+    RefreshToken refreshToken =
+        refreshTokenRepository
+            .findByToken(refreshTokenValue)
+            .orElseThrow(() -> new CommonException(CommonErrorCode.EXPIRED_TOKEN));
+
+    if (refreshToken.isExpired()) {
+      refreshTokenRepository.deleteByUserId(refreshToken.getUserId());
+      throw new CommonException(CommonErrorCode.EXPIRED_TOKEN);
     }
 
-    public LoginResult reissue(String refreshTokenValue) {
-        RefreshToken refreshToken = refreshTokenRepository.findByToken(refreshTokenValue)
-                .orElseThrow(() -> new CommonException(CommonErrorCode.EXPIRED_TOKEN));
+    User user =
+        userRepository
+            .findById(refreshToken.getUserId())
+            .orElseThrow(() -> new UserDomainException(UserErrorCode.USER_NOT_FOUND));
 
-        if (refreshToken.isExpired()) {
-            refreshTokenRepository.deleteByUserId(refreshToken.getUserId());
-            throw new CommonException(CommonErrorCode.EXPIRED_TOKEN);
-        }
+    ensureLoginAllowed(user);
 
-        User user = userRepository.findById(refreshToken.getUserId())
-                .orElseThrow(() -> new UserDomainException(UserErrorCode.USER_NOT_FOUND));
+    refreshTokenRepository.deleteByUserId(user.getId());
+    return issueTokens(user);
+  }
 
-        ensureLoginAllowed(user);
+  public void logout(Long userId) {
+    refreshTokenRepository.deleteByUserId(userId);
+  }
 
-        refreshTokenRepository.deleteByUserId(user.getId());
-        return issueTokens(user);
+  private String resolveEmail(OAuthProvider provider, OAuthPort.OAuthUserInfo userInfo) {
+    String email = userInfo.getEmail();
+    if (email != null && !email.isBlank()) {
+      return email;
     }
+    // 이메일 동의 거부(또는 비즈니스 앱 미전환) 시 합성 이메일 사용
+    return provider.name().toLowerCase()
+        + "_"
+        + userInfo.getProviderId()
+        + "@"
+        + provider.name().toLowerCase()
+        + ".local";
+  }
 
-    public void logout(Long userId) {
-        refreshTokenRepository.deleteByUserId(userId);
+  private void ensureLoginAllowed(User user) {
+    if (user.isBanned() || user.isWithdrew()) {
+      throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
     }
+  }
 
-    private String resolveEmail(OAuthProvider provider, OAuthPort.OAuthUserInfo userInfo) {
-        String email = userInfo.getEmail();
-        if (email != null && !email.isBlank()) {
-            return email;
-        }
-        // 이메일 동의 거부(또는 비즈니스 앱 미전환) 시 합성 이메일 사용
-        return provider.name().toLowerCase() + "_" + userInfo.getProviderId() + "@" + provider.name().toLowerCase() + ".local";
-    }
+  private LoginResult issueTokens(User user) {
+    String accessToken = jwtProvider.createAccessToken(user.getId(), user.getEmail());
+    String refreshTokenValue = jwtProvider.createRefreshToken(user.getId());
 
-    private void ensureLoginAllowed(User user) {
-        if (user.isBanned() || user.isWithdrew()) {
-            throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
-        }
-    }
+    RefreshToken refreshToken =
+        RefreshToken.create(user.getId(), refreshTokenValue, jwtProvider.getRefreshTokenExpiry());
+    refreshTokenRepository.save(refreshToken);
 
-    private LoginResult issueTokens(User user) {
-        String accessToken = jwtProvider.createAccessToken(user.getId(), user.getEmail());
-        String refreshTokenValue = jwtProvider.createRefreshToken(user.getId());
-
-        RefreshToken refreshToken = RefreshToken.create(
-                user.getId(),
-                refreshTokenValue,
-                jwtProvider.getRefreshTokenExpiry()
-        );
-        refreshTokenRepository.save(refreshToken);
-
-        return LoginResult.of(accessToken, refreshTokenValue, UserInfo.from(user));
-    }
+    return LoginResult.of(accessToken, refreshTokenValue, UserInfo.from(user));
+  }
 }

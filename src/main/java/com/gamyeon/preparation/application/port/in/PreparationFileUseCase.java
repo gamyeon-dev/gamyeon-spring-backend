@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface PreparationFileUseCase {
 
-    PreparationFilesRegisterResult registerFiles(List<PreparationFileCommand> commands);
+  PreparationFilesRegisterResult registerFiles(List<PreparationFileCommand> commands);
 }

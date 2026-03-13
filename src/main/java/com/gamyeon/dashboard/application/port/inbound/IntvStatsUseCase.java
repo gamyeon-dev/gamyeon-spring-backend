@@ -4,5 +4,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface IntvStatsUseCase {
-    List<DailyStat> getIntvStats(Long userId, LocalDate startDate, LocalDate endDate);
+  List<DailyStat> getIntvStats(Long userId, LocalDate startDate, LocalDate endDate);
 }

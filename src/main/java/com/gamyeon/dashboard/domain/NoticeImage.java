@@ -14,24 +14,35 @@ import jakarta.persistence.Table;
 @Table(name = "notice_images")
 public class NoticeImage {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "notice_id", nullable = false)
-    private Notice notice;
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "notice_id", nullable = false)
+  private Notice notice;
 
-    @Column(nullable = false)
-    private String imageUrl;
+  @Column(nullable = false)
+  private String imageUrl;
 
-    @Column(nullable = false)
-    private int sortOrder;
+  @Column(nullable = false)
+  private int sortOrder;
 
-    protected NoticeImage() {}
+  protected NoticeImage() {}
 
-    public Long getId() { return id; }
-    public Notice getNotice() { return notice; }
-    public String getImageUrl() { return imageUrl; }
-    public int getSortOrder() { return sortOrder; }
+  public Long getId() {
+    return id;
+  }
+
+  public Notice getNotice() {
+    return notice;
+  }
+
+  public String getImageUrl() {
+    return imageUrl;
+  }
+
+  public int getSortOrder() {
+    return sortOrder;
+  }
 }

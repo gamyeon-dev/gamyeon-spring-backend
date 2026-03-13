@@ -11,40 +11,41 @@ import com.gamyeon.user.domain.UserErrorCode;
 
 public class UserService implements UserUseCase {
 
-    private final UserRepository userRepository;
-    private final RefreshTokenRepository refreshTokenRepository;
+  private final UserRepository userRepository;
+  private final RefreshTokenRepository refreshTokenRepository;
 
-    public UserService(UserRepository userRepository,
-                       RefreshTokenRepository refreshTokenRepository) {
-        this.userRepository = userRepository;
-        this.refreshTokenRepository = refreshTokenRepository;
-    }
+  public UserService(UserRepository userRepository, RefreshTokenRepository refreshTokenRepository) {
+    this.userRepository = userRepository;
+    this.refreshTokenRepository = refreshTokenRepository;
+  }
 
-    public UserInfo getMyInfo(Long userId) {
-        User user = findActiveUser(userId);
-        return UserInfo.from(user);
-    }
+  public UserInfo getMyInfo(Long userId) {
+    User user = findActiveUser(userId);
+    return UserInfo.from(user);
+  }
 
-    public UserInfo updateNickname(NicknameUpdateCommand command) {
-        User user = findActiveUser(command.getUserId());
-        user.updateNickname(command.getNickname());
-        userRepository.save(user);
-        return UserInfo.from(user);
-    }
+  public UserInfo updateNickname(NicknameUpdateCommand command) {
+    User user = findActiveUser(command.getUserId());
+    user.updateNickname(command.getNickname());
+    userRepository.save(user);
+    return UserInfo.from(user);
+  }
 
-    public void withdraw(Long userId) {
-        User user = findActiveUser(userId);
-        user.withdraw();
-        userRepository.save(user);
-        refreshTokenRepository.deleteByUserId(userId);
-    }
+  public void withdraw(Long userId) {
+    User user = findActiveUser(userId);
+    user.withdraw();
+    userRepository.save(user);
+    refreshTokenRepository.deleteByUserId(userId);
+  }
 
-    private User findActiveUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserDomainException(UserErrorCode.USER_NOT_FOUND));
-        if (user.isBanned() || user.isWithdrew()) {
-            throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
-        }
-        return user;
+  private User findActiveUser(Long userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(() -> new UserDomainException(UserErrorCode.USER_NOT_FOUND));
+    if (user.isBanned() || user.isWithdrew()) {
+      throw new UserDomainException(UserErrorCode.DEACTIVATED_USER);
     }
+    return user;
+  }
 }

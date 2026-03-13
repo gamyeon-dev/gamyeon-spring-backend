@@ -4,13 +4,15 @@ import com.gamyeon.user.domain.OAuthProvider;
 
 public interface OAuthPort {
 
-    String getAccessToken(OAuthProvider provider, String authorizationCode);
+  String getAccessToken(OAuthProvider provider, String authorizationCode);
 
-    OAuthUserInfo getUserInfo(OAuthProvider provider, String accessToken);
+  OAuthUserInfo getUserInfo(OAuthProvider provider, String accessToken);
 
-    interface OAuthUserInfo {
-        String getEmail();
-        String getNickname();
-        String getProviderId();
-    }
+  interface OAuthUserInfo {
+    String getEmail();
+
+    String getNickname();
+
+    String getProviderId();
+  }
 }
