@@ -31,4 +31,17 @@ public class QuestionSetEntity {
   public Long getIntvId() {
     return intvId;
   }
+  public Long getId()     { return id; }
+
+  // QuestionSetEntity.java 에 추가
+  public static QuestionSetEntity create(Long intvId, String content, Integer questionOrder) {
+    QuestionSetEntity e = new QuestionSetEntity();
+    e.intvId = intvId;
+    e.content = content;
+    e.questionOrder = questionOrder;
+    return e;
+  }
+
+
+
 }

@@ -48,6 +48,8 @@ public class SecurityConfig {
                     .permitAll()
                     .requestMatchers("/health", "/actuator/**")
                     .permitAll()
+                    .requestMatchers("/internal/**")        // ← 이 줄 추가
+                    .permitAll()
                     .requestMatchers("/admin/**")
                     .hasRole("ADMIN")
                     .anyRequest()
