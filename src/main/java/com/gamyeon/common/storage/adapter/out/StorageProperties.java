@@ -1,4 +1,4 @@
-package com.gamyeon.preparation.adapter.out.storage;
+package com.gamyeon.common.storage.adapter.out;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

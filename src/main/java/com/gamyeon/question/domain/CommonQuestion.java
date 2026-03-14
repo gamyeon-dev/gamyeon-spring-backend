@@ -12,7 +12,7 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 
 @Entity
-@Table(name = "commonQuestions")
+@Table(name = "common_questions")
 @Getter
 public class CommonQuestion extends BaseEntity {
 
@@ -26,4 +26,6 @@ public class CommonQuestion extends BaseEntity {
   @Enumerated(EnumType.STRING)
   @Column(name = "status", nullable = false)
   private CommonQuestionStatus status;
+
+  protected CommonQuestion() {}
 }

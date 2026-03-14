@@ -1,5 +1,9 @@
 package com.gamyeon.preparation.application;
 
+import com.gamyeon.common.storage.application.StorageFileKeyGenerator;
+import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlCommand;
+import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlPort;
+import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlResult;
 import com.gamyeon.intv.domain.Intv;
 import com.gamyeon.intv.domain.IntvErrorCode;
 import com.gamyeon.intv.domain.IntvException;
@@ -16,9 +20,6 @@ import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlUseCa
 import com.gamyeon.preparation.application.port.out.IntvPort;
 import com.gamyeon.preparation.application.port.out.PreparationFilePort;
 import com.gamyeon.preparation.application.port.out.PreparationPort;
-import com.gamyeon.preparation.application.port.out.StoragePresignedUrlCommand;
-import com.gamyeon.preparation.application.port.out.StoragePresignedUrlPort;
-import com.gamyeon.preparation.application.port.out.StoragePresignedUrlResult;
 import com.gamyeon.preparation.domain.Preparation;
 import com.gamyeon.preparation.domain.PreparationErrorCode;
 import com.gamyeon.preparation.domain.PreparationException;
@@ -27,12 +28,10 @@ import com.gamyeon.preparation.domain.PreparationFileType;
 import com.gamyeon.question.application.port.out.LoadPreparationPort;
 import com.gamyeon.question.application.port.out.PreparationForQuestionGeneration;
 import com.gamyeon.question.application.port.out.PreparationSourceFile;
-import java.text.Normalizer;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
-import java.util.UUID;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,16 +49,19 @@ public class PreparationApplicationService
   private final IntvPort intvPort;
   private final PreparationPort preparationPort;
   private final PreparationFilePort preparationFilePort;
+  private final StorageFileKeyGenerator storageFileKeyGenerator;
   private final StoragePresignedUrlPort storagePresignedUrlPort;
 
   public PreparationApplicationService(
       IntvPort intvPort,
       PreparationPort preparationPort,
       PreparationFilePort preparationFilePort,
+      StorageFileKeyGenerator storageFileKeyGenerator,
       StoragePresignedUrlPort storagePresignedUrlPort) {
     this.intvPort = intvPort;
     this.preparationPort = preparationPort;
     this.preparationFilePort = preparationFilePort;
+    this.storageFileKeyGenerator = storageFileKeyGenerator;
     this.storagePresignedUrlPort = storagePresignedUrlPort;
   }
 
@@ -246,17 +248,9 @@ public class PreparationApplicationService
 
   private String createFileKey(
       Long preparationId, PreparationFileType fileType, String originalFileName) {
-    String sanitizedFileName = sanitizeFileName(originalFileName);
-    String fileTypePath = fileType.name().toLowerCase(Locale.ROOT);
-    return "preparations/%d/%s/%s-%s"
-        .formatted(preparationId, fileTypePath, UUID.randomUUID(), sanitizedFileName);
-  }
-
-  private String sanitizeFileName(String originalFileName) {
-    String normalized = Normalizer.normalize(originalFileName, Normalizer.Form.NFKC);
-    String sanitized = normalized.replaceAll("[\\\\/:*?\"<>|\\s]+", "-");
-    sanitized = sanitized.replaceAll("-{2,}", "-");
-    sanitized = sanitized.replaceAll("^[.-]+|[.-]+$", "");
-    return sanitized.isBlank() ? "file" : sanitized;
+    return storageFileKeyGenerator.generate(
+        "preparations",
+        List.of(String.valueOf(preparationId), fileType.name().toLowerCase(Locale.ROOT)),
+        originalFileName);
   }
 }

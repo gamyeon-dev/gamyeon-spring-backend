@@ -2,8 +2,8 @@ package com.gamyeon.user.infrastructure.web;
 
 import com.gamyeon.common.exception.BaseException;
 import com.gamyeon.common.exception.CommonErrorCode;
-import com.gamyeon.common.response.ErrorResponse;
-import com.gamyeon.common.response.FieldError;
+import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.common.response.ErrorDetail;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,32 +20,30 @@ public class GlobalExceptionHandler {
   private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
   @ExceptionHandler(BaseException.class)
-  public ResponseEntity<ErrorResponse> handleBaseException(BaseException e) {
-    return ResponseEntity.status(e.getErrorCode().getStatus())
-        .body(ErrorResponse.of(e.getErrorCode()));
+  public ResponseEntity<ApiResponse<Void>> handleBaseException(BaseException e) {
+    return ApiResponse.fail(e.getErrorCode());
   }
 
   @ExceptionHandler(MethodArgumentNotValidException.class)
-  public ResponseEntity<ErrorResponse> handleValidationException(
+  public ResponseEntity<ApiResponse<Void>> handleValidationException(
       MethodArgumentNotValidException e) {
     BindingResult bindingResult = e.getBindingResult();
-    List<FieldError> fieldErrors =
+    List<ErrorDetail> fieldErrors =
         bindingResult.getFieldErrors().stream()
-            .map(fe -> FieldError.of(fe.getField(), fe.getDefaultMessage()))
+            .map(fe -> ErrorDetail.of(fe.getField(), fe.getDefaultMessage()))
             .toList();
-    return ResponseEntity.badRequest().body(ErrorResponse.validation(fieldErrors));
+    return ApiResponse.fail(CommonErrorCode.INVALID_INPUT, fieldErrors);
   }
 
   @ExceptionHandler(NoResourceFoundException.class)
-  public ResponseEntity<ErrorResponse> handleNoResourceFoundException(NoResourceFoundException e) {
-    return ResponseEntity.status(CommonErrorCode.NOT_FOUND.getStatus())
-        .body(ErrorResponse.of(CommonErrorCode.NOT_FOUND));
+  public ResponseEntity<ApiResponse<Void>> handleNoResourceFoundException(
+      NoResourceFoundException e) {
+    return ApiResponse.fail(CommonErrorCode.NOT_FOUND);
   }
 
   @ExceptionHandler(Exception.class)
-  public ResponseEntity<ErrorResponse> handleException(Exception e) {
+  public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
     log.error("[Unhandled Exception] {}: {}", e.getClass().getSimpleName(), e.getMessage(), e);
-    return ResponseEntity.internalServerError()
-        .body(ErrorResponse.of(CommonErrorCode.INTERNAL_ERROR));
+    return ApiResponse.fail(CommonErrorCode.INTERNAL_ERROR);
   }
 }

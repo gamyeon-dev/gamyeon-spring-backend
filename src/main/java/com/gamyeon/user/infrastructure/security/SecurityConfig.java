@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -40,20 +39,23 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(
             auth ->
-                auth.requestMatchers("/api/v1/auth/login/**", "/api/v1/auth/reissue")
-                    .permitAll()
-                    .requestMatchers("/api/internal/**")
-                    .permitAll()
-                    .requestMatchers("/api/v1/intvs/")
-                    .permitAll()
-                    .requestMatchers("/health", "/actuator/**")
-                    .permitAll()
-                    .requestMatchers("/admin/**")
-                    .hasRole("ADMIN")
+                auth
+
+                    //                        .requestMatchers("/api/v1/auth/login/**",
+                    // "/api/v1/auth/reissue").permitAll()
+                    //                        .requestMatchers("/api/internal/**").permitAll()
+                    //                        .requestMatchers("/api/v1/intvs/").permitAll()
+                    //                        .requestMatchers("/health",
+                    // "/actuator/**").permitAll()
+                    //                        .requestMatchers("/admin/**").hasRole("ADMIN")
                     .anyRequest()
-                    .authenticated())
-        .addFilterBefore(internalApiKeyFilter(), UsernamePasswordAuthenticationFilter.class)
-        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
+                    .permitAll()
+            //                                .authenticated()
+            );
+    //                .addFilterBefore(internalApiKeyFilter(),
+    // UsernamePasswordAuthenticationFilter.class)
+    //                .addFilterBefore(jwtAuthenticationFilter(),
+    // UsernamePasswordAuthenticationFilter.class);
 
     return http.build();
   }

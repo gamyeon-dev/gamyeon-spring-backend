@@ -26,7 +26,7 @@ public class QuestionSet extends BaseEntity {
     this.content = content;
   }
 
-  public static QuestionSet save(Long intvId, String content) {
+  public static QuestionSet create(Long intvId, String content) {
     return new QuestionSet(intvId, content);
   }
 }

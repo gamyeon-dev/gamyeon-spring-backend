@@ -4,5 +4,5 @@ import java.util.List;
 
 public interface CommonQuestionRepository {
 
-  List<CommonQuestion> getActiveQuestions();
+  List<CommonQuestion> findRandomActiveQuestions(int count);
 }

@@ -1,4 +1,4 @@
-package com.gamyeon.preparation.application.port.out;
+package com.gamyeon.common.storage.application.port.out;
 
 public record StoragePresignedUrlResult(
     String fileKey, String presignedUrl, String fileUrl, long expiresInSeconds) {}
