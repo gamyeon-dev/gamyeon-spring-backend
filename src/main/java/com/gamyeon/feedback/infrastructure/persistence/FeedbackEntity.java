@@ -63,5 +63,27 @@ public class FeedbackEntity {
     return id;
   }
 
+  public Long getIntvId() {
+    return intvId;
+  }
 
+  public Long getQuestionSetId() {
+    return questionSetId;
+  }
+
+  public FeedbackStatus getStatus() {
+    return status;
+  }
+
+  public String getContent() {
+    return content;
+  }
+
+  public LocalDateTime getCreatedAt() {
+    return createdAt;
+  }
+
+  public LocalDateTime getUpdatedAt() {
+    return updatedAt;
+  }
 }
