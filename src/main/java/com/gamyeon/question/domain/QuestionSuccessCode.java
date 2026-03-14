@@ -4,7 +4,8 @@ import com.gamyeon.common.response.SuccessCode;
 import org.springframework.http.HttpStatus;
 
 public enum QuestionSuccessCode implements SuccessCode {
-  REQUEST_SUCCESS(HttpStatus.ACCEPTED, "QSTN-S001", "질문 생성이 요청되었습니다");
+  REQUEST_SUCCESS(HttpStatus.ACCEPTED, "QSTN-S001", "질문 생성이 요청되었습니다."),
+  CREATE_SUCCESS(HttpStatus.CREATED, "QSTN-S002", "질문세트가 생성되었습니다.");
 
   private final HttpStatus status;
   private final String code;
