@@ -1,8 +1,8 @@
-package com.gamyeon.preparation.adapter.out.storage;
+package com.gamyeon.common.storage.adapter.out;
 
-import com.gamyeon.preparation.application.port.out.StoragePresignedUrlCommand;
-import com.gamyeon.preparation.application.port.out.StoragePresignedUrlPort;
-import com.gamyeon.preparation.application.port.out.StoragePresignedUrlResult;
+import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlCommand;
+import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlPort;
+import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlResult;
 import java.time.Duration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

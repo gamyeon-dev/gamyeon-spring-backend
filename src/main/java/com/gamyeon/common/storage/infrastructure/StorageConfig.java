@@ -1,6 +1,6 @@
-package com.gamyeon.preparation.infrastructure;
+package com.gamyeon.common.storage.infrastructure;
 
-import com.gamyeon.preparation.adapter.out.storage.StorageProperties;
+import com.gamyeon.common.storage.adapter.out.StorageProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +14,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 @Configuration
 @EnableConfigurationProperties(StorageProperties.class)
-public class PreparationConfig {
+public class StorageConfig {
 
   @Bean
   public S3Presigner s3Presigner(StorageProperties storageProperties) {

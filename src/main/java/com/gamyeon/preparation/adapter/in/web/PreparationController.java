@@ -1,7 +1,6 @@
 package com.gamyeon.preparation.adapter.in.web;
 
 import com.gamyeon.common.response.ApiResponse;
-import com.gamyeon.common.security.CurrentUserId;
 import com.gamyeon.preparation.application.port.in.PreparationFileUseCase;
 import com.gamyeon.preparation.application.port.in.PreparationFilesRegisterResult;
 import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlResult;
@@ -31,12 +30,14 @@ public class PreparationController {
 
   @PostMapping("/{intvId}/files")
   public ResponseEntity<ApiResponse<PreparationFileRegisterResponse>> registerFile(
-      @CurrentUserId Long userId,
+      Long userId,
       @PathVariable Long intvId,
       @Valid @RequestBody PreparationFileRegisterRequest request) {
+    userId = 1L;
+    Long finalUserId = userId;
     PreparationFilesRegisterResult result =
         preparationFileUseCase.registerFiles(
-            request.files().stream().map(file -> file.toCommand(userId, intvId)).toList());
+            request.files().stream().map(file -> file.toCommand(finalUserId, intvId)).toList());
 
     return ApiResponse.success(
         PreparationSuccessCode.PREPARATION_FILE_REGISTERED,
@@ -45,9 +46,8 @@ public class PreparationController {
 
   @PostMapping("/{intvId}/files/presigned-url")
   public ResponseEntity<ApiResponse<PreparationResponse>> issueUploadUrl(
-      @CurrentUserId Long userId,
-      @PathVariable Long intvId,
-      @Valid @RequestBody PreparationRequest request) {
+      Long userId, @PathVariable Long intvId, @Valid @RequestBody PreparationRequest request) {
+    userId = 1L;
     UploadPreparationFileUrlResult result =
         uploadPreparationFileUrlUseCase.issueUploadUrl(request.toCommand(userId, intvId));
 
