@@ -1,6 +1,8 @@
 package com.gamyeon.feedback.infrastructure.persistence;
 
 import com.gamyeon.feedback.domain.Feedback;
+import com.gamyeon.feedback.domain.FeedbackStatus;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,5 +24,10 @@ public class FeedbackPersistenceAdapter {
             .orElseThrow(() -> new IllegalStateException("업데이트 대상 Feedback 없음: " + domain.getId()));
     FeedbackEntity updated = FeedbackEntity.fromDomain(domain);
     jpaRepository.save(updated);
+  }
+
+  public boolean existsCompletedByQuestionSetId(Long questionSetId) {
+    return jpaRepository.existsByQuestionSetIdAndStatusIn(
+        questionSetId, List.of(FeedbackStatus.SUCCEED, FeedbackStatus.FAILED));
   }
 }
