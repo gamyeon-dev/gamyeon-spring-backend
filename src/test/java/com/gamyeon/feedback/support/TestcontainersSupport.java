@@ -6,7 +6,7 @@ import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
 
-@ActiveProfiles("test")
+@ActiveProfiles("feedback")
 public abstract class TestcontainersSupport {
 
   static final PostgreSQLContainer<?> POSTGRES;
