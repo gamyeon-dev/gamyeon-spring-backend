@@ -42,13 +42,11 @@ public class SecurityConfig {
             auth ->
                 auth.requestMatchers("/api/v1/auth/login/**", "/api/v1/auth/reissue")
                     .permitAll()
-                    .requestMatchers("/api/internal/**")
+                    .requestMatchers("/internal/**")
                     .permitAll()
                     .requestMatchers("/api/v1/intvs/")
                     .permitAll()
                     .requestMatchers("/health", "/actuator/**")
-                    .permitAll()
-                    .requestMatchers("/internal/**")        // ← 이 줄 추가
                     .permitAll()
                     .requestMatchers("/admin/**")
                     .hasRole("ADMIN")
