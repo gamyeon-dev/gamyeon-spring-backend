@@ -1,7 +1,6 @@
 package com.gamyeon.intv.presentation;
 
 import com.gamyeon.common.response.ApiResponse;
-import com.gamyeon.common.security.CurrentUserId;
 import com.gamyeon.intv.application.dto.command.ChangeStateIntvCommand;
 import com.gamyeon.intv.application.dto.command.UpdateIntvCommand;
 import com.gamyeon.intv.application.dto.result.IntvInfo;
@@ -39,8 +38,8 @@ public class IntvController {
 
   @PostMapping
   public ResponseEntity<ApiResponse<IntvResponse>> create(
-      @CurrentUserId Long userId, @Valid @RequestBody IntvRequest request) {
-
+      Long userId, @Valid @RequestBody IntvRequest request) {
+    userId = 1L;
     IntvInfo info = createUseCase.create(request.toCreateCommand(userId));
 
     return ApiResponse.success(IntvSuccessCode.INTV_CREATED, IntvResponse.from(info));
@@ -48,10 +47,8 @@ public class IntvController {
 
   @PatchMapping("/{intvId}")
   public ResponseEntity<ApiResponse<IntvResponse>> update(
-      @CurrentUserId Long userId,
-      @PathVariable Long intvId,
-      @Valid @RequestBody IntvRequest request) {
-
+      Long userId, @PathVariable Long intvId, @Valid @RequestBody IntvRequest request) {
+    userId = 1L;
     IntvInfo info = updateTitleUseCase.updateTitle(request.toUpdateCommand(userId, intvId));
 
     updateTitleUseCase.updateTitle(new UpdateIntvCommand(userId, intvId, request.title()));
@@ -60,36 +57,32 @@ public class IntvController {
   }
 
   @PatchMapping("/{intvId}/start")
-  public ResponseEntity<ApiResponse<Void>> start(
-      @CurrentUserId Long userId, @PathVariable Long intvId) {
-
+  public ResponseEntity<ApiResponse<Void>> start(Long userId, @PathVariable Long intvId) {
+    userId = 1L;
     changeStateUseCase.start(new ChangeStateIntvCommand(userId, intvId));
 
     return ApiResponse.success(IntvSuccessCode.INTV_STARTED);
   }
 
   @PatchMapping("/{intvId}/pause")
-  public ResponseEntity<ApiResponse<Void>> pauseIntv(
-      @CurrentUserId Long userId, @PathVariable Long intvId) {
-
+  public ResponseEntity<ApiResponse<Void>> pauseIntv(Long userId, @PathVariable Long intvId) {
+    userId = 1L;
     changeStateUseCase.pause(new ChangeStateIntvCommand(userId, intvId));
 
     return ApiResponse.success(IntvSuccessCode.INTV_PAUSED);
   }
 
   @PatchMapping("/{intvId}/resume")
-  public ResponseEntity<ApiResponse<Void>> resumeIntv(
-      @CurrentUserId Long userId, @PathVariable Long intvId) {
-
+  public ResponseEntity<ApiResponse<Void>> resumeIntv(Long userId, @PathVariable Long intvId) {
+    userId = 1L;
     changeStateUseCase.resume(new ChangeStateIntvCommand(userId, intvId));
 
     return ApiResponse.success(IntvSuccessCode.INTV_RESUMED);
   }
 
   @PatchMapping("/{intvId}/finish")
-  public ResponseEntity<ApiResponse<Void>> finishIntv(
-      @CurrentUserId Long userId, @PathVariable Long intvId) {
-
+  public ResponseEntity<ApiResponse<Void>> finishIntv(Long userId, @PathVariable Long intvId) {
+    userId = 1L;
     changeStateUseCase.finish(new ChangeStateIntvCommand(userId, intvId));
 
     return ApiResponse.success(IntvSuccessCode.INTV_FINISHED);

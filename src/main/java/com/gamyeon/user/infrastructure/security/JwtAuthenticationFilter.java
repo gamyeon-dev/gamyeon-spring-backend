@@ -2,8 +2,8 @@ package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamyeon.common.exception.CommonErrorCode;
+import com.gamyeon.common.response.ApiResponse;
 import com.gamyeon.common.response.ErrorCode;
-import com.gamyeon.common.response.ErrorResponse;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -51,7 +51,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     String authHeader = request.getHeader("Authorization");
 
     if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-      writeError(response, CommonErrorCode.INVALID_TOKEN);
+      filterChain.doFilter(request, response);
       return;
     }
 
@@ -79,6 +79,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     response.setStatus(errorCode.getStatus().value());
     response.setContentType(MediaType.APPLICATION_JSON_VALUE);
     response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-    response.getWriter().write(objectMapper.writeValueAsString(ErrorResponse.of(errorCode)));
+    response
+        .getWriter()
+        .write(
+            objectMapper.writeValueAsString(
+                new ApiResponse<>(false, errorCode.getCode(), errorCode.getMessage(), null, null)));
   }
 }
