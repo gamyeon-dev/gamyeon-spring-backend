@@ -1,4 +1,7 @@
 package com.gamyeon.answer.application;
+
+import com.gamyeon.answer.application.port.in.HandleAnswerSttCallbackCommand;
+import com.gamyeon.answer.application.port.in.HandleAnswerSttCallbackUseCase;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlCommand;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlResult;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlUseCase;
@@ -34,11 +37,13 @@ public class AnswerApplicationService
   private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".mp4", ".webm");
   private static final Set<String> ALLOWED_CONTENT_TYPE_PREFIXES =
       Set.of("video/mp4", "video/webm");
+
   private final AnswerRepository answerRepository;
   private final StorageFileKeyGenerator storageFileKeyGenerator;
   private final StoragePresignedUrlPort storagePresignedUrlPort;
   private final RequestAnswerSttAnalysisPort requestAnswerSttAnalysisPort;
   private final AnswerAnalysisProperties answerAnalysisProperties;
+
   public AnswerApplicationService(
       AnswerRepository answerRepository,
       StorageFileKeyGenerator storageFileKeyGenerator,
@@ -121,6 +126,24 @@ public class AnswerApplicationService
     requestAnswerSttAnalysisPort.request(
         new AnswerAnalysisTarget(answer.getQuestionSetId(), answer.getFileKey()));
   }
+
+  @Override
+  public void handle(HandleAnswerSttCallbackCommand command) {
+    Answer answer =
+        answerRepository
+            .findByQuestionSetId(command.questionId())
+            .orElseThrow(() -> new AnswerException(AnswerErrorCode.ANSWER_NOT_FOUND));
+
+    if (command.errorMessage() != null && !command.errorMessage().isBlank()) {
+      answer.failStt(command.errorMessage());
+      answerRepository.save(answer);
+      return;
+    }
+
+    answer.completeStt(command.correctedTranscript());
+    answerRepository.save(answer);
+  }
+
   private void validateVideoFile(String originalFileName, String contentType) {
     if (originalFileName == null || !hasAllowedExtension(originalFileName)) {
       throw new AnswerException(AnswerErrorCode.INVALID_FILE_EXTENSION);
