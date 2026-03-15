@@ -39,8 +39,6 @@ dependencies {
     // Security
     implementation 'org.springframework.boot:spring-boot-starter-security'
 
-    // postgresql
-    runtimeOnly 'org.postgresql:postgresql'
 
     // Data
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
@@ -57,12 +55,11 @@ dependencies {
     // AWS S3
     implementation 'software.amazon.awssdk:s3:2.31.18'
 
-    // Consul
-    implementation 'org.springframework.cloud:spring-cloud-starter-consul-config'
-    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+
     // DB
     runtimeOnly 'org.postgresql:postgresql'
     runtimeOnly 'com.h2database:h2'
+    runtimeOnly 'com.mysql:mysql-connector-j'
 
     // Lombok
     compileOnly 'org.projectlombok:lombok'
@@ -71,7 +68,15 @@ dependencies {
     // Test
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+
+    // Testcontainers
+    // spring-boot-starter-testcontainers 제거
+    testImplementation 'org.testcontainers:postgresql'
+    testImplementation 'org.testcontainers:junit-jupiter'
+
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+
 }
 
 dependencyManagement {
