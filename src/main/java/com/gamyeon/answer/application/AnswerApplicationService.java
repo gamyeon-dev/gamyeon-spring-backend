@@ -2,6 +2,9 @@ package com.gamyeon.answer.application;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlCommand;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlResult;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlUseCase;
+import com.gamyeon.answer.application.port.in.RegisterAnswerCommand;
+import com.gamyeon.answer.application.port.in.RegisterAnswerResult;
+import com.gamyeon.answer.application.port.in.RegisterAnswerUseCase;
 import com.gamyeon.answer.domain.Answer;
 import com.gamyeon.answer.domain.AnswerErrorCode;
 import com.gamyeon.answer.domain.AnswerException;
@@ -19,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 public class AnswerApplicationService
     implements IssueAnswerUploadUrlUseCase,
+        RegisterAnswerUseCase,
         HandleAnswerSttCallbackUseCase {
 
   private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".mp4", ".webm");
@@ -59,6 +63,31 @@ public class AnswerApplicationService
         result.presignedUrl(),
         result.fileUrl(),
         result.expiresInSeconds());
+  }
+
+  @Override
+  public RegisterAnswerResult register(RegisterAnswerCommand command) {
+    answerRepository
+        .findByQuestionSetId(command.questionSetId())
+        .ifPresent(
+            answer -> {
+              throw new AnswerException(AnswerErrorCode.ANSWER_ALREADY_EXISTS);
+            });
+
+    validateVideoFile(command.originalFileName(), command.contentType());
+    validateFileSize(command.fileSizeBytes());
+
+    Answer answer =
+        Answer.create(
+            command.questionSetId(),
+            command.originalFileName(),
+            command.fileKey(),
+            command.fileUrl(),
+            command.contentType(),
+            command.fileSizeBytes());
+
+    Answer saved = answerRepository.save(answer);
+    return new RegisterAnswerResult(saved.getId());
   }
   private void validateVideoFile(String originalFileName, String contentType) {
     if (originalFileName == null || !hasAllowedExtension(originalFileName)) {

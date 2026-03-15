@@ -2,6 +2,9 @@ package com.gamyeon.answer.adapter.in.web;
 
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlResult;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlUseCase;
+import com.gamyeon.answer.application.port.in.RegisterAnswerResult;
+import com.gamyeon.answer.application.port.in.RegisterAnswerUseCase;
+import com.gamyeon.answer.application.port.in.RequestAnswerAnalysisUseCase;
 import com.gamyeon.answer.domain.AnswerSuccessCode;
 import com.gamyeon.common.response.ApiResponse;
 import jakarta.validation.Valid;
