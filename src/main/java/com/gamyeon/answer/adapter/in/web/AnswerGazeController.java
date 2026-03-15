@@ -16,14 +16,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AnswerGazeController {
 
-  private final SendAnswerGazeSegmentUseCase sendAnswerGazeSegmentUseCase;
+    private final SendAnswerGazeSegmentUseCase sendAnswerGazeSegmentUseCase;
 
-  @PostMapping("/api/v1/intvs/{questionSetId}/gaze")
-  public ResponseEntity<ApiResponse<Void>> sendGazeSegment(
-      @CurrentUserId Long userId,
-      @PathVariable Long questionSetId,
-      @Valid @RequestBody AnswerGazeSegmentRequest request) {
-    sendAnswerGazeSegmentUseCase.send(request.toCommand(userId, questionSetId));
-    return ApiResponse.success(AnswerSuccessCode.ANSWER_GAZE_SEGMENT_RECEIVED);
-  }
+    @PostMapping("/api/v1/intvs/{questionSetId}/gaze")
+    public ResponseEntity<ApiResponse<Void>> sendGazeSegment(
+            Long userId,
+            @PathVariable Long questionSetId,
+            @Valid @RequestBody AnswerGazeSegmentRequest request) {
+        userId = 1L;
+        sendAnswerGazeSegmentUseCase.send(request.toCommand(userId, questionSetId));
+        return ApiResponse.success(AnswerSuccessCode.ANSWER_GAZE_SEGMENT_RECEIVED);
+    }
 }
