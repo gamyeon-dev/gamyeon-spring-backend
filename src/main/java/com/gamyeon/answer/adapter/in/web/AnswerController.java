@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class AnswerController {
 
   private final IssueAnswerUploadUrlUseCase issueAnswerUploadUrlUseCase;
+  private final RegisterAnswerUseCase registerAnswerUseCase;
   @PostMapping("/api/v1/intvs/{questionSetId}/answers/presigned-url")
   public ResponseEntity<ApiResponse<AnswerUploadUrlResponse>> issueUploadUrl(
       Long userId,
@@ -32,4 +33,18 @@ public class AnswerController {
 
     return ApiResponse.success(
         AnswerSuccessCode.ANSWER_UPLOAD_URL_ISSUED, AnswerUploadUrlResponse.from(result));
+  }
+
+  @PostMapping("/api/v1/intvs/{questionSetId}/answers")
+  public ResponseEntity<ApiResponse<RegisterAnswerResponse>> registerAnswer(
+      Long userId,
+      @PathVariable Long questionSetId,
+      @Valid @RequestBody RegisterAnswerRequest request) {
+    userId = 1L;
+
+    RegisterAnswerResult result =
+        registerAnswerUseCase.register(request.toCommand(userId, questionSetId));
+
+    return ApiResponse.success(
+        AnswerSuccessCode.ANSWER_REGISTERED, RegisterAnswerResponse.from(result));
   }
