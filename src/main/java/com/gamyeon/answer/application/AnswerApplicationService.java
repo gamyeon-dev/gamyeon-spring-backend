@@ -5,6 +5,10 @@ import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlUseCase;
 import com.gamyeon.answer.application.port.in.RegisterAnswerCommand;
 import com.gamyeon.answer.application.port.in.RegisterAnswerResult;
 import com.gamyeon.answer.application.port.in.RegisterAnswerUseCase;
+import com.gamyeon.answer.application.port.in.RequestAnswerAnalysisCommand;
+import com.gamyeon.answer.application.port.in.RequestAnswerAnalysisUseCase;
+import com.gamyeon.answer.application.port.out.AnswerAnalysisTarget;
+import com.gamyeon.answer.application.port.out.RequestAnswerSttAnalysisPort;
 import com.gamyeon.answer.domain.Answer;
 import com.gamyeon.answer.domain.AnswerErrorCode;
 import com.gamyeon.answer.domain.AnswerException;
@@ -18,11 +22,13 @@ import java.util.List;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 @Service
 @Transactional
 public class AnswerApplicationService
     implements IssueAnswerUploadUrlUseCase,
         RegisterAnswerUseCase,
+        RequestAnswerAnalysisUseCase,
         HandleAnswerSttCallbackUseCase {
 
   private static final Set<String> ALLOWED_EXTENSIONS = Set.of(".mp4", ".webm");
@@ -31,14 +37,19 @@ public class AnswerApplicationService
   private final AnswerRepository answerRepository;
   private final StorageFileKeyGenerator storageFileKeyGenerator;
   private final StoragePresignedUrlPort storagePresignedUrlPort;
+  private final RequestAnswerSttAnalysisPort requestAnswerSttAnalysisPort;
+  private final AnswerAnalysisProperties answerAnalysisProperties;
   public AnswerApplicationService(
       AnswerRepository answerRepository,
       StorageFileKeyGenerator storageFileKeyGenerator,
       StoragePresignedUrlPort storagePresignedUrlPort,
+      RequestAnswerSttAnalysisPort requestAnswerSttAnalysisPort,
       AnswerAnalysisProperties answerAnalysisProperties) {
     this.answerRepository = answerRepository;
     this.storageFileKeyGenerator = storageFileKeyGenerator;
     this.storagePresignedUrlPort = storagePresignedUrlPort;
+    this.requestAnswerSttAnalysisPort = requestAnswerSttAnalysisPort;
+    this.answerAnalysisProperties = answerAnalysisProperties;
   }
 
   @Override
@@ -88,6 +99,27 @@ public class AnswerApplicationService
 
     Answer saved = answerRepository.save(answer);
     return new RegisterAnswerResult(saved.getId());
+  }
+
+  @Override
+  public void requestAnalysis(RequestAnswerAnalysisCommand command) {
+    Answer answer =
+        answerRepository
+            .findById(command.answerId())
+            .orElseThrow(() -> new AnswerException(AnswerErrorCode.ANSWER_NOT_FOUND));
+
+    if (answer.getStatus() == AnswerStatus.STT_PROCESSING) {
+      throw new AnswerException(AnswerErrorCode.ANALYSIS_ALREADY_IN_PROGRESS);
+    }
+    if (answer.getStatus() == AnswerStatus.STT_COMPLETED) {
+      throw new AnswerException(AnswerErrorCode.ANALYSIS_ALREADY_COMPLETED);
+    }
+
+    answer.markSttProcessing();
+    answerRepository.save(answer);
+
+    requestAnswerSttAnalysisPort.request(
+        new AnswerAnalysisTarget(answer.getQuestionSetId(), answer.getFileKey()));
   }
   private void validateVideoFile(String originalFileName, String contentType) {
     if (originalFileName == null || !hasAllowedExtension(originalFileName)) {

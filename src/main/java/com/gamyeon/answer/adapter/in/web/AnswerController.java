@@ -21,6 +21,8 @@ public class AnswerController {
 
   private final IssueAnswerUploadUrlUseCase issueAnswerUploadUrlUseCase;
   private final RegisterAnswerUseCase registerAnswerUseCase;
+  private final RequestAnswerAnalysisUseCase requestAnswerAnalysisUseCase;
+
   @PostMapping("/api/v1/intvs/{questionSetId}/answers/presigned-url")
   public ResponseEntity<ApiResponse<AnswerUploadUrlResponse>> issueUploadUrl(
       Long userId,
@@ -48,3 +50,15 @@ public class AnswerController {
     return ApiResponse.success(
         AnswerSuccessCode.ANSWER_REGISTERED, RegisterAnswerResponse.from(result));
   }
+
+  @PostMapping("/api/v1/answers/{answerId}/analysis")
+  public ResponseEntity<ApiResponse<Void>> requestAnalysis(
+      Long userId, @PathVariable Long answerId) {
+    userId = 1L;
+
+    requestAnswerAnalysisUseCase.requestAnalysis(
+        new com.gamyeon.answer.application.port.in.RequestAnswerAnalysisCommand(userId, answerId));
+
+    return ApiResponse.success(AnswerSuccessCode.ANSWER_ANALYSIS_REQUESTED);
+  }
+}
