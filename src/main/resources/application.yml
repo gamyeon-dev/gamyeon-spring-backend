@@ -24,6 +24,15 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  server:
+    callback-base-url: ${SPRING_SERVER_URL:http://localhost:8080}
+
+ai:
+  server:
+    url: ${AI_SERVER_URL:http://localhost:8000}
+
+
+
 
 server:
   port: 8080
