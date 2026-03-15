@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gamyeon.feedback.application.exception.QuestionSetNotFoundException;
 import com.gamyeon.feedback.application.service.FeedbackWebhookService;
 import com.gamyeon.feedback.domain.FeedbackStatus;
+import com.gamyeon.feedback.domain.event.FeedbackSavedEvent;
 import com.gamyeon.feedback.infrastructure.persistence.FeedbackPersistenceAdapter;
 import com.gamyeon.feedback.infrastructure.persistence.QuestionSetRepository;
 import com.gamyeon.feedback.infrastructure.web.dto.FeedbackWebhookRequest;
@@ -22,6 +23,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class FeedbackWebhookServiceTest {
@@ -29,6 +31,7 @@ class FeedbackWebhookServiceTest {
   @Mock FeedbackPersistenceAdapter feedbackPersistence;
   @Mock QuestionSetRepository questionSetRepository;
   @Mock ObjectMapper objectMapper;
+  @Mock ApplicationEventPublisher eventPublisher; // ← 추가
 
   @InjectMocks FeedbackWebhookService service;
 
@@ -78,5 +81,34 @@ class FeedbackWebhookServiceTest {
 
     verify(feedbackPersistence, times(1))
         .update(argThat(f -> f.getStatus() == FeedbackStatus.FAILED));
+  }
+
+  @Test
+  @DisplayName("정상 저장 완료 시 FeedbackSavedEvent가 발행된다")
+  void handleWebhook_publishes_feedback_saved_event() throws Exception {
+    given(questionSetRepository.findIntvIdById(1L)).willReturn(Optional.of(10L));
+    given(objectMapper.writeValueAsString(any())).willReturn("{}");
+
+    service.handleWebhook(succeedRequest);
+
+    // Explicitly type the argThat matcher
+    verify(eventPublisher, times(1))
+        .publishEvent(
+            argThat(
+                (FeedbackSavedEvent event) ->
+                    event.intvId().equals(10L)
+                        && event.questionSetId().equals(1L)
+                        && event.status() == FeedbackStatus.SUCCEED));
+  }
+
+  @Test
+  @DisplayName("중복 요청 시 FeedbackSavedEvent가 발행되지 않는다")
+  void handleWebhook_does_not_publish_event_on_duplicate() throws Exception {
+    given(questionSetRepository.findIntvIdById(1L)).willReturn(Optional.of(10L));
+    given(feedbackPersistence.existsCompletedByQuestionSetId(1L)).willReturn(true);
+
+    service.handleWebhook(succeedRequest);
+
+    verify(eventPublisher, never()).publishEvent(any());
   }
 }
