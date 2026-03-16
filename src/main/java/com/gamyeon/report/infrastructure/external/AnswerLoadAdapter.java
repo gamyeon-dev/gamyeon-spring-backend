@@ -22,7 +22,7 @@ public class AnswerLoadAdapter implements LoadAnswerPort {
 
   @Override
   public List<Answer> findByIntvIdOrderByAnswerOrder(Long intvId) {
-    List<Answer> answers = answerRepository.findByIntvId(intvId);
+    List<Answer> answers = answerRepository.findAllByIntvId(intvId);
 
     // questionSetId(질문 생성 순서)를 기준으로 정렬하여
     // 실제 면접 진행 순서와 일치시킴
