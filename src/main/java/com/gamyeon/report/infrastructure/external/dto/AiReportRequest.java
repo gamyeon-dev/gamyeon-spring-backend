@@ -10,6 +10,6 @@ public class AiReportRequest {
 
   private Long intvId;
   private Long userId;
-  private String callbackUrl;
+  private String callback;
   private List<AiReportFeedbackItem> feedbacks;
 }

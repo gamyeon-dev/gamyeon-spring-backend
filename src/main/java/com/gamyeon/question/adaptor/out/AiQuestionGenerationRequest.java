@@ -4,13 +4,13 @@ import com.gamyeon.question.application.port.out.PreparationForQuestionGeneratio
 import java.util.List;
 
 public record AiQuestionGenerationRequest(
-    Long intvId, List<AiQuestionGenerationSourceRequest> files, String callbackUrl) {
+    Long intvId, List<AiQuestionGenerationSourceRequest> files, String callback) {
 
   public static AiQuestionGenerationRequest from(
-      PreparationForQuestionGeneration preparation, String callbackUrl) {
+      PreparationForQuestionGeneration preparation, String callback) {
     return new AiQuestionGenerationRequest(
         preparation.intvId(),
         preparation.files().stream().map(AiQuestionGenerationSourceRequest::from).toList(),
-        callbackUrl);
+        callback);
   }
 }

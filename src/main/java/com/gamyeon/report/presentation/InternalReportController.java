@@ -16,8 +16,8 @@
 //  private final ReportCallbackUseCase reportCallbackUseCase;
 //  private final FeedbackCallbackUseCase feedbackCallbackUseCase;
 //
-//  /** [AI -> BE] 피드백 생성 완료 Callback POST /internal/v1/feedbacks/callbackUrl */
-//  @PostMapping("/feedbacks/callbackUrl")
+//  /** [AI -> BE] 피드백 생성 완료 Callback POST /internal/v1/feedbacks/callback */
+//  @PostMapping("/feedbacks/callback")
 //  public SuccessResponse<Void> handleFeedbackCallback(
 //      @RequestBody FeedbackCallbackRequest request) {
 //
