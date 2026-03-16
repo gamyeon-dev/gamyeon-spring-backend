@@ -30,12 +30,12 @@
 //    return SuccessResponse.of(response);
 //  }
 //
-//  /** [9-2] 리포트 상세 조회 GET /api/v1/report/detail/{interviewId}?userId={userId} */
-//  @GetMapping("/detail/{interviewId}")
+//  /** [9-2] 리포트 상세 조회 GET /api/v1/report/detail/{intvId}?userId={userId} */
+//  @GetMapping("/detail/{intvId}")
 //  public SuccessResponse<ReportDetailResponse> getReportDetail(
-//      @PathVariable("interviewId") Long interviewId, @RequestParam("userId") Long userId) {
+//      @PathVariable("intvId") Long intvId, @RequestParam("userId") Long userId) {
 //
-//    ReportDetailResponse response = getReportDetailUseCase.getDetail(interviewId, userId);
+//    ReportDetailResponse response = getReportDetailUseCase.getDetail(intvId, userId);
 //    return SuccessResponse.of(response);
 //  }
 // }
