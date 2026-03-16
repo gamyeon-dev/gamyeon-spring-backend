@@ -17,14 +17,14 @@ spring:
         instance-id: GAMYEON-BACKEND:${server.port}
         fail-fast: false
   datasource:
-    url: ${SPRING_DATASOURCE_URL}
+    url: ${spring.datasource.url}
     driver-class-name: org.postgresql.Driver
-    username: ${SPRING_DATASOURCE_USERNAME}
-    password: ${SPRING_DATASOURCE_PASSWORD}
+    username: ${spring.datasource.username}
+    password: ${spring.datasource.password}
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO}
+      ddl-auto: ${spring.jpa.hibernate.ddl-auto:none}
     show-sql: false
     properties:
       hibernate:
@@ -34,12 +34,12 @@ server:
   port: 8080
 
 jwt:
-  secret: ${JWT_SECRET}
+  secret: ${jwt.secret}
   access-token-expiry: 3600000
   refresh-token-expiry: 604800000
 
 internal:
-  api-key: ${INTERNAL_API_KEY}
+  api-key: ${internal.api-key}
 
 oauth:
   google:
@@ -53,8 +53,8 @@ oauth:
 
 storage:
   s3:
-    bucket: ${S3_BUCKET}
-    region: ${S3_REGION}
-    presigned-duration-seconds: ${S3_PRESIGNED_DURATION_SECONDS:900}
-    access-key: ${S3_ACCESS_KEY:}
-    secret-key: ${S3_SECRET_KEY:}
+    bucket: ${storage.s3.bucket}
+    region: ${storage.s3.region}
+    presigned-duration-seconds: ${storage.s3.presigned-duration-seconds:900}
+    access-key: ${storage.s3.access-key:}
+    secret-key: ${storage.s3.secret-key:}
