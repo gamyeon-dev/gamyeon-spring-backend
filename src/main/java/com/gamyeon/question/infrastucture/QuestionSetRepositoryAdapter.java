@@ -3,6 +3,8 @@ package com.gamyeon.question.infrastucture;
 import com.gamyeon.question.domain.QuestionSet;
 import com.gamyeon.question.domain.QuestionSetRepository;
 import java.util.List;
+
+import com.gamyeon.question.infrastucture.JpaQuestionSetRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
