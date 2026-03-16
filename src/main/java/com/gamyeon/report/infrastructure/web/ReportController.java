@@ -1,0 +1,51 @@
+package com.gamyeon.report.infrastructure.web;
+
+import com.gamyeon.common.response.ApiResponse;
+import com.gamyeon.report.application.exception.ReportSuccessCode;
+import com.gamyeon.report.application.port.in.DeleteReportUseCase;
+import com.gamyeon.report.application.port.in.GetReportDetailUseCase;
+import com.gamyeon.report.application.port.in.GetReportListUseCase;
+import com.gamyeon.report.infrastructure.web.dto.ReportDetailResponse;
+import com.gamyeon.report.infrastructure.web.dto.ReportListResponse;
+import java.util.List;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+@Slf4j
+@RestController
+@RequestMapping("/api/v1/report")
+@RequiredArgsConstructor
+public class ReportController {
+
+  private final GetReportListUseCase getReportListUseCase;
+  private final GetReportDetailUseCase getReportDetailUseCase;
+  private final DeleteReportUseCase deleteReportUseCase;
+
+  // [SECURITY TODO] JWT 도입 후 userId는 토큰에서 추출하도록 변경 필요
+
+  @GetMapping("/list")
+  public ResponseEntity<ApiResponse<List<ReportListResponse>>> getList(@RequestParam Long userId) {
+    log.info("[Report] 목록 조회 - userId={}", userId);
+    return ApiResponse.success(
+        ReportSuccessCode.REPORT_LIST_SUCCESS, getReportListUseCase.getList(userId));
+  }
+
+  @GetMapping("/detail/{interviewId}")
+  public ResponseEntity<ApiResponse<ReportDetailResponse>> getDetail(
+      @PathVariable Long interviewId, @RequestParam Long userId) {
+    log.info("[Report] 상세 조회 - interviewId={}, userId={}", interviewId, userId);
+    return ApiResponse.success(
+        ReportSuccessCode.REPORT_DETAIL_SUCCESS,
+        getReportDetailUseCase.getDetail(interviewId, userId));
+  }
+
+  @DeleteMapping("/{interviewId}")
+  public ResponseEntity<ApiResponse<Void>> delete(
+      @PathVariable Long interviewId, @RequestParam Long userId) {
+    log.info("[Report] 삭제 - interviewId={}, userId={}", interviewId, userId);
+    deleteReportUseCase.delete(interviewId, userId);
+    return ApiResponse.success(ReportSuccessCode.REPORT_DELETE_SUCCESS);
+  }
+}

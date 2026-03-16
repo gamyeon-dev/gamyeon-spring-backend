@@ -5,13 +5,13 @@ import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-@Builder
+@Builder(toBuilder = true)
 public class AiReportFeedbackItem {
 
   private Long questionSetId;
-  private String status; // "SUCCEED" | "FAILED"
+  private String status;
 
-  private Integer reliability; // reliability-> answerAccuracy
+  private Integer reliability;
   private Integer logicScore;
   private Integer answerCompositionScore;
   private Integer gazeScore;
