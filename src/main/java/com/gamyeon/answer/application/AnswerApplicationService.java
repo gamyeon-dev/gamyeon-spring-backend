@@ -95,6 +95,7 @@ public class AnswerApplicationService
 
     Answer answer =
         Answer.create(
+            command.intvId(),
             command.questionSetId(),
             command.originalFileName(),
             command.fileKey(),

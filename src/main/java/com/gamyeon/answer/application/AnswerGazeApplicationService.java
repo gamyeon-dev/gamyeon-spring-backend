@@ -30,11 +30,6 @@ public class AnswerGazeApplicationService implements SendAnswerGazeSegmentUseCas
     }
 
     sendAnswerGazeToAiPort.send(
-        new AnswerGazeSegmentPayload(
-            command.questionSetId(),
-            command.meta(),
-            command.metricsSummary(),
-            command.rawData(),
-            command.events()));
+        new AnswerGazeSegmentPayload(command.questionSetId(), command.body()));
   }
 }

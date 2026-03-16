@@ -2,6 +2,7 @@ package com.gamyeon.answer.adapter.out.persistence;
 
 import com.gamyeon.answer.domain.Answer;
 import com.gamyeon.answer.domain.AnswerRepository;
+import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -25,5 +26,10 @@ public class AnswerRepositoryAdapter implements AnswerRepository {
   @Override
   public Optional<Answer> findByQuestionSetId(Long questionSetId) {
     return jpaAnswerRepository.findByQuestionSetId(questionSetId);
+  }
+
+  @Override
+  public List<Answer> findAllByIntvId(Long intvId) {
+    return jpaAnswerRepository.findAllByIntvId(intvId);
   }
 }

@@ -13,6 +13,6 @@ public class FeignAnswerGazeAdapter implements SendAnswerGazeToAiPort {
 
   @Override
   public void send(AnswerGazeSegmentPayload payload) {
-    pythonAnswerGazeFeignClient.send(PythonAnswerGazeRequest.from(payload));
+    pythonAnswerGazeFeignClient.send(payload.body());
   }
 }

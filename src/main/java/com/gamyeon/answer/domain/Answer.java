@@ -21,6 +21,9 @@ public class Answer extends BaseEntity {
   private Long id;
 
   @Column(nullable = false)
+  private Long intvId;
+
+  @Column(nullable = false)
   private Long questionSetId;
 
   @Column(nullable = false)
@@ -51,12 +54,14 @@ public class Answer extends BaseEntity {
   protected Answer() {}
 
   private Answer(
+      Long intvId,
       Long questionSetId,
       String originalFileName,
       String fileKey,
       String fileUrl,
       String contentType,
       Long fileSizeBytes) {
+    this.intvId = intvId;
     this.questionSetId = questionSetId;
     this.originalFileName = originalFileName;
     this.fileKey = fileKey;
@@ -67,6 +72,7 @@ public class Answer extends BaseEntity {
   }
 
   public static Answer create(
+      Long intvId,
       Long questionSetId,
       String originalFileName,
       String fileKey,
@@ -74,7 +80,7 @@ public class Answer extends BaseEntity {
       String contentType,
       Long fileSizeBytes) {
     return new Answer(
-        questionSetId, originalFileName, fileKey, fileUrl, contentType, fileSizeBytes);
+        intvId, questionSetId, originalFileName, fileKey, fileUrl, contentType, fileSizeBytes);
   }
 
   public void markSttProcessing() {

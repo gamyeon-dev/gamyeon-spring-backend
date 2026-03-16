@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record RegisterAnswerRequest(
+    @NotNull Long intvId,
     @NotBlank String originalFileName,
     @NotBlank String fileKey,
     @NotBlank String fileUrl,
@@ -14,6 +15,13 @@ public record RegisterAnswerRequest(
 
   public RegisterAnswerCommand toCommand(Long userId, Long questionSetId) {
     return new RegisterAnswerCommand(
-        userId, questionSetId, originalFileName, fileKey, fileUrl, contentType, fileSizeBytes);
+        userId,
+        intvId,
+        questionSetId,
+        originalFileName,
+        fileKey,
+        fileUrl,
+        contentType,
+        fileSizeBytes);
   }
 }
