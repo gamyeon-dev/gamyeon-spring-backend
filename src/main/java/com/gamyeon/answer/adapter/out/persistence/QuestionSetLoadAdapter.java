@@ -9,10 +9,10 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class QuestionSetLoadAdapter implements LoadQuestionSetPort {
 
-  private final JpaQuestionSetRepository jpaQuestionSetRepository;
+    private final JpaQuestionSetRepository jpaQuestionSetRepository;
 
-  @Override
-  public boolean existsById(Long questionSetId) {
-    return jpaQuestionSetRepository.existsById(questionSetId);
-  }
+    @Override
+    public boolean existsById(Long questionSetId) {
+        return jpaQuestionSetRepository.existsById(questionSetId);
+    }
 }
