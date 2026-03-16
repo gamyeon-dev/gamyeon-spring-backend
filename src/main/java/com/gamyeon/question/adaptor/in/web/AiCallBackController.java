@@ -15,14 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AiCallBackController {
 
-  private final CreateQuestionSetUseCase createQuestionSetUseCase;
-  private final QuestionSetRepositoryAdapter questionSetRepositoryAdapter;
+    private final CreateQuestionSetUseCase createQuestionSetUseCase;
+    private final QuestionSetRepositoryAdapter questionSetRepositoryAdapter;
 
-  @PostMapping("internal/v1/questions/callback")
-  public ResponseEntity<ApiResponse<Void>> callback(@RequestBody CallBackRequest callBack) {
+    @PostMapping("internal/v1/questions/callback")
+    public ResponseEntity<ApiResponse<Void>> callback(@RequestBody CallBackRequest callBack) {
 
-    createQuestionSetUseCase.create(callBack.toCommand());
+        createQuestionSetUseCase.create(callBack.toCommand());
 
-    return ApiResponse.success(QuestionSuccessCode.CREATE_SUCCESS);
-  }
+        return ApiResponse.success(QuestionSuccessCode.CREATE_SUCCESS);
+    }
 }

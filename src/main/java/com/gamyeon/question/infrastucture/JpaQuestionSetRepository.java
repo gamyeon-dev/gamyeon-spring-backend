@@ -1,8 +1,9 @@
 package com.gamyeon.question.infrastucture;
 
 import com.gamyeon.question.domain.QuestionSet;
-import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.List;
 
 public interface JpaQuestionSetRepository extends JpaRepository<QuestionSet, Long> {
 
