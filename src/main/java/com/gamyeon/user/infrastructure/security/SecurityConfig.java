@@ -60,23 +60,28 @@ public class SecurityConfig {
     return http.build();
   }
 
-  @Bean
-  public JwtAuthenticationFilter jwtAuthenticationFilter() {
-    return new JwtAuthenticationFilter(jwtProvider, objectMapper);
-  }
-
-  @Bean
-  public InternalApiKeyFilter internalApiKeyFilter() {
-    return new InternalApiKeyFilter(internalApiKey, objectMapper);
-  }
+  //    @Bean
+  //    public JwtAuthenticationFilter jwtAuthenticationFilter() {
+  //        return new JwtAuthenticationFilter(jwtProvider, objectMapper);
+  //    }
+  //
+  //    @Bean
+  //    public InternalApiKeyFilter internalApiKeyFilter() {
+  //        return new InternalApiKeyFilter(internalApiKey, objectMapper);
+  //    }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    config.setAllowedOrigins(List.of("http://localhost:3000", "https://gamyeon.com"));
-    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-    config.setAllowedHeaders(
-        List.of("Authorization", "Content-Type", "X-Requested-With", "X-Internal-API-Key"));
+    //    config.setAllowedOrigins(List.of("http://localhost:3000", "https://gamyeon.com"));
+    //    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+    //    config.setAllowedHeaders(
+    //        List.of("Authorization", "Content-Type", "X-Requested-With", "X-Internal-API-Key"));
+
+    config.setAllowedOriginPatterns(List.of("*")); // 추가
+    config.setAllowedMethods(List.of("*")); // 추가
+    config.setAllowedHeaders(List.of("*")); // 추가
+
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
 
