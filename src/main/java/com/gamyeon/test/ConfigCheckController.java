@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class ConfigCheckController {
 
-    @Value("${storage.s3.bucket}")
-    private String secret;
+  @Value("${storage.s3.bucket}")
+  private String secret;
 
-    @GetMapping("/check-config")
-    public String check() {
-        return "Loaded secret: " + secret;
-    }
+  @GetMapping("/check-config")
+  public String check() {
+    return "Loaded secret: " + secret;
+  }
 }
