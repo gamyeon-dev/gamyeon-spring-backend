@@ -18,8 +18,6 @@ spring:
         fail-fast: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
-    hibernate:
-      ddl-auto: ${spring.jpa.hibernate.ddl-auto:none}
     show-sql: false
     properties:
       hibernate:
