@@ -1,9 +1,10 @@
 package com.gamyeon.answer.adapter.out.external;
 
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-// @FeignClient(name = "pythonAnswerAnalysisClient", url = "${answer.analysis.base-url}")
+@FeignClient(name = "pythonAnswerAnalysisClient", url = "/internal/v1/answers/analyze")
 public interface PythonAnswerAnalysisFeignClient {
 
   @PostMapping("/internal/v1/answers/analyze")

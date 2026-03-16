@@ -104,7 +104,7 @@ public class AnswerApplicationService
             command.fileSizeBytes());
 
     Answer saved = answerRepository.save(answer);
-    return new RegisterAnswerResult(saved.getId());
+    return new RegisterAnswerResult(saved.getId(), saved.getQuestionSetId());
   }
 
   @Override
