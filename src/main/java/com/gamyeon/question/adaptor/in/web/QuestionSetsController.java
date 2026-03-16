@@ -12,15 +12,15 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class QuestionSetsController {
 
-    private final RequestCustomQuestionUseCase RequestCustomQuestionUseCase;
+  private final RequestCustomQuestionUseCase RequestCustomQuestionUseCase;
 
-    @GetMapping("intvs/{intvId}/questions")
-    public ResponseEntity<ApiResponse<Void>> createQuestionSet(
-            Long userId, @PathVariable Long intvId) {
-        userId = 1L;
+  @GetMapping("intvs/{intvId}/questions")
+  public ResponseEntity<ApiResponse<Void>> createQuestionSet(
+      Long userId, @PathVariable Long intvId) {
+    userId = 1L;
 
-        RequestCustomQuestionUseCase.create(userId, intvId);
+    RequestCustomQuestionUseCase.create(userId, intvId);
 
-        return ApiResponse.success(QuestionSuccessCode.REQUEST_SUCCESS);
-    }
+    return ApiResponse.success(QuestionSuccessCode.REQUEST_SUCCESS);
+  }
 }
