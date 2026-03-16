@@ -12,5 +12,6 @@ public interface AnswerRepository {
   Optional<Answer> findByQuestionSetId(Long questionSetId);
 
   List<Answer> findAllByIntvId(Long intvId);
+
   List<Answer> findByIntvId(Long intvId);
 }
