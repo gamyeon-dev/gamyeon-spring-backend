@@ -5,7 +5,10 @@ import com.gamyeon.question.application.port.in.RequestCustomQuestionUseCase;
 import com.gamyeon.question.domain.QuestionSuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api/v1")
@@ -14,7 +17,7 @@ public class QuestionSetsController {
 
   private final RequestCustomQuestionUseCase RequestCustomQuestionUseCase;
 
-  @GetMapping("intvs/{intvId}/questions")
+  @PostMapping("intvs/{intvId}/questions")
   public ResponseEntity<ApiResponse<Void>> createQuestionSet(
       Long userId, @PathVariable Long intvId) {
     userId = 1L;

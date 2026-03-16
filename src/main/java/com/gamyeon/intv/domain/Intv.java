@@ -15,7 +15,7 @@ import lombok.Getter;
 
 @Getter
 @Entity
-@Table(name = "intvs")
+@Table(name = "intv")
 public class Intv extends BaseEntity {
 
   @Id
