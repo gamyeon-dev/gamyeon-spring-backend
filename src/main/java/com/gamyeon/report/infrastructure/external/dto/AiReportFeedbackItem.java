@@ -19,9 +19,12 @@ public class AiReportFeedbackItem {
   private Integer answerDurationMs;
   private Integer keywordCount;
 
+  private Integer index;
+  private String questionContent;
   private String characteristic;
   private String answerSummary;
   private String strength;
   private String improvement;
+
   private List<String> feedbackBadges;
 }

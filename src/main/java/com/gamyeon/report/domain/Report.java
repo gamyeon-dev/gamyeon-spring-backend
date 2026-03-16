@@ -3,6 +3,7 @@ package com.gamyeon.report.domain;
 import com.gamyeon.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Map;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -48,7 +49,7 @@ public class Report extends BaseEntity {
 
   @JdbcTypeCode(SqlTypes.JSON)
   @Column(name = "report_data", columnDefinition = "jsonb")
-  private Object reportData; // AI Callback report 객체 전체 저장
+  private Map<String, Object> reportData;
 
   // ── 팩토리 메서드 ──────────────────────────────────────────────────────────
 
@@ -67,7 +68,7 @@ public class Report extends BaseEntity {
       int answeredCount,
       List<String> strengths,
       List<String> weaknesses,
-      Object reportData) {
+      Map<String, Object> reportData) {
     this.totalScore = totalScore;
     this.answeredCount = answeredCount;
     this.strengths = strengths;
