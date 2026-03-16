@@ -1,6 +1,8 @@
 spring:
   application:
     name: gamyeon-backend
+  config:
+    import: "optional:consul:"
   cloud:
     compatibility-verifier:
       enabled: false
@@ -8,7 +10,7 @@ spring:
       host: ${CONSUL_HOST:localhost}
       port: ${CONSUL_PORT:8500}
       config:
-        enabled: false
+        enabled: true
       discovery:
         enabled: true
         service-name: GAMYEON-BACKEND
