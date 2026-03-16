@@ -2,10 +2,12 @@ services:
   spring-server:
     image: zzang6535/gamyeon-spring:latest
     container_name: SPRING-SERVER
-    env_file:
-      - .env
     ports:
       - "8080:8080"
+    environment:
+      - SPRING_CLOUD_CONSUL_CONFIG_ENABLED=true
+      - SPRING_CLOUD_CONSUL_HOST=localhost
+      - SPRING_CLOUD_CONSUL_PORT=8500
     networks:
       - gamyeon-net
 
