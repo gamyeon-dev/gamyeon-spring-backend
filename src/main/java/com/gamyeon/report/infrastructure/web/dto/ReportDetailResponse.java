@@ -1,5 +1,6 @@
 package com.gamyeon.report.infrastructure.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
@@ -38,6 +39,10 @@ public class ReportDetailResponse {
     private Long avgAnswerDurationMs;
 
     @JsonProperty("createdAt")
+    @JsonFormat(
+        shape = JsonFormat.Shape.STRING,
+        pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+        timezone = "UTC")
     private LocalDateTime createdAt;
 
     @JsonProperty("competencyScores")

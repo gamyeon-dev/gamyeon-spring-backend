@@ -132,7 +132,7 @@ public class ReportGenerateService implements GenerateReportUseCase {
             .intvId(intvId)
             .userId(report.getUserId())
             .callback(callbackBaseUrl + "/internal/v1/reports/callback")
-            .feedbacks(enrichedFeedbacks) // ✅ 여기서 가공된 리스트 주입!
+            .feedbacks(enrichedFeedbacks) // 여기서 가공된 리스트 주입!
             .build();
 
     try {

@@ -1,5 +1,6 @@
 package com.gamyeon.report.infrastructure.web.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.gamyeon.report.domain.Report;
 import java.time.LocalDateTime;
@@ -15,7 +16,13 @@ public class ReportListResponse {
   private String intvTitle;
   private String intvStatus;
   private Long durationMs;
+
+  @JsonFormat(
+      shape = JsonFormat.Shape.STRING,
+      pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'",
+      timezone = "UTC")
   private LocalDateTime updatedAt;
+
   private ReportSummary report;
 
   @Getter
