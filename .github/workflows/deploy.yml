@@ -57,8 +57,6 @@ jobs:
           script: |
             cd /home/ec2-user/app
             
-            docker network create gamyeon-net || true
-            
             # Consul KV로 관리할 예정이므로 .env 생성 로직은 추후 제거
             {
               echo "CONSUL_HOST=consul"
