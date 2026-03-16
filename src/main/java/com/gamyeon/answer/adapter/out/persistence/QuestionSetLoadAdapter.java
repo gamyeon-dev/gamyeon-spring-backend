@@ -5,7 +5,7 @@ import com.gamyeon.question.infrastucture.JpaQuestionSetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("answerQuestionSetLoadAdapter")
 @RequiredArgsConstructor
 public class QuestionSetLoadAdapter implements LoadQuestionSetPort {
 
