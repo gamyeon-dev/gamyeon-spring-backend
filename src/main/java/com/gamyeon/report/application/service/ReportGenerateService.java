@@ -1,9 +1,11 @@
 package com.gamyeon.report.application.service;
 
+import com.gamyeon.question.domain.QuestionSet;
 import com.gamyeon.report.application.exception.ReportGenerationFailedException;
 import com.gamyeon.report.application.port.in.GenerateReportUseCase;
 import com.gamyeon.report.application.port.in.TriggerType;
 import com.gamyeon.report.application.port.out.LoadFeedbackPort;
+import com.gamyeon.report.application.port.out.LoadQuestionSetPort;
 import com.gamyeon.report.application.port.out.LoadReportPort;
 import com.gamyeon.report.application.port.out.SaveReportPort;
 import com.gamyeon.report.domain.Report;
@@ -11,6 +13,7 @@ import com.gamyeon.report.domain.ReportStatus;
 import com.gamyeon.report.infrastructure.external.AiReportClient;
 import com.gamyeon.report.infrastructure.external.dto.AiReportFeedbackItem;
 import com.gamyeon.report.infrastructure.external.dto.AiReportRequest;
+import java.util.Comparator;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +33,7 @@ public class ReportGenerateService implements GenerateReportUseCase {
   private final SaveReportPort saveReportPort;
   private final LoadFeedbackPort loadFeedbackPort;
   private final AiReportClient aiReportClient;
+  private final LoadQuestionSetPort loadQuestionSetPort;
 
   @Value("${spring.server.callback-base-url}")
   private String callbackBaseUrl;
@@ -94,14 +98,41 @@ public class ReportGenerateService implements GenerateReportUseCase {
 
   private void requestToAi(Report report) {
     Long intvId = report.getIntvId();
+
+    // 1. 질문 리스트를 ID 순으로 정렬하여 로드
+    List<QuestionSet> questions =
+        loadQuestionSetPort.findAllByIntvId(intvId).stream()
+            .sorted(Comparator.comparing(QuestionSet::getId))
+            .toList();
+
+    // 2. 피드백 수집
     List<AiReportFeedbackItem> feedbacks = loadFeedbackPort.findSucceedFeedbacksByIntvId(intvId);
 
+    // 3. 인덱스와 질문 내용을 매핑하여 AI 전송용 리스트 생성
+    List<AiReportFeedbackItem> enrichedFeedbacks =
+        feedbacks.stream()
+            .map(
+                f -> {
+                  QuestionSet q =
+                      questions.stream()
+                          .filter(qs -> qs.getId().equals(f.getQuestionSetId()))
+                          .findFirst()
+                          .orElseThrow();
+
+                  int index = questions.indexOf(q) + 1;
+
+                  // DTO에 정의된 toBuilder()를 사용하여 index와 content를 주입
+                  return f.toBuilder().index(index).questionContent(q.getContent()).build();
+                })
+            .toList();
+
+    // 4. [핵심] 가공된 enrichedFeedbacks를 담아 최종 요청 객체 생성
     AiReportRequest request =
         AiReportRequest.builder()
             .intvId(intvId)
             .userId(report.getUserId())
-            .callbackUrl(callbackBaseUrl + "/internal/v1/reports/callback")
-            .feedbacks(feedbacks)
+            .callback(callbackBaseUrl + "/internal/v1/reports/callback")
+            .feedbacks(enrichedFeedbacks) // ✅ 여기서 가공된 리스트 주입!
             .build();
 
     try {

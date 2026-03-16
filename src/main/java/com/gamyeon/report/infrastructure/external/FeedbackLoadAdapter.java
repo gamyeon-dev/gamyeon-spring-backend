@@ -27,10 +27,32 @@ public class FeedbackLoadAdapter implements LoadFeedbackPort {
 
   @Override
   public List<AiReportFeedbackItem> findSucceedFeedbacksByIntvId(Long intvId) {
+    // 1. 해당 면접의 성공한 피드백 엔티티들을 가져옴
     List<FeedbackEntity> entities =
         feedbackJpaRepository.findAllByIntvIdAndStatus(intvId, FeedbackStatus.SUCCEED);
 
-    return entities.stream().map(this::convertToAiItem).toList();
+    // 2. [핵심] 정렬 기준이 되는 질문 ID 리스트를 생성 순(ID순)으로 정렬하여 가져옴
+    // (QuestionSetRepository를 통해 해당 intvId의 질문 ID들만 가져온다고 가정)
+    List<Long> sortedQuestionIds =
+        entities.stream()
+            .map(FeedbackEntity::getQuestionSetId)
+            .distinct()
+            .sorted() // ID 오름차순 정렬
+            .toList();
+
+    // 3. 각 피드백에 대해 정렬된 리스트에서의 순서(Index)를 찾아 부여
+    return entities.stream()
+        .map(
+            entity -> {
+              AiReportFeedbackItem item = convertToAiItem(entity);
+
+              // 정렬된 리스트에서의 위치 + 1 이 곧 서비스상의 Index (1~7)
+              int index = sortedQuestionIds.indexOf(entity.getQuestionSetId()) + 1;
+
+              // DTO에 index 주입 (toBuilder 등을 활용)
+              return item.toBuilder().index(index).build();
+            })
+        .toList();
   }
 
   private AiReportFeedbackItem convertToAiItem(FeedbackEntity entity) {

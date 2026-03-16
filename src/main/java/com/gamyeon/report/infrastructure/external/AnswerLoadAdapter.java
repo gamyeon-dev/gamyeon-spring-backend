@@ -3,6 +3,7 @@ package com.gamyeon.report.infrastructure.external;
 import com.gamyeon.answer.domain.Answer;
 import com.gamyeon.answer.domain.AnswerRepository;
 import com.gamyeon.report.application.port.out.LoadAnswerPort;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
@@ -21,17 +22,11 @@ public class AnswerLoadAdapter implements LoadAnswerPort {
 
   @Override
   public List<Answer> findByIntvIdOrderByAnswerOrder(Long intvId) {
-    // intvId로 모든 답변 조회 후 answer_order 기준 정렬
-    // AnswerRepository에 커스텀 쿼리 메서드가 없다면, findByIntvId를 사용하고 클라이언트에서 정렬
-    return answerRepository.findByIntvId(intvId).stream()
-        .sorted(
-            (a1, a2) -> {
-              // answer_order 필드가 없다면 questionSetId로 대체 정렬
-              Integer order1 = extractOrderFromQuestionSetId(a1.getQuestionSetId());
-              Integer order2 = extractOrderFromQuestionSetId(a2.getQuestionSetId());
-              return order1.compareTo(order2);
-            })
-        .toList();
+    List<Answer> answers = answerRepository.findByIntvId(intvId);
+
+    // questionSetId(질문 생성 순서)를 기준으로 정렬하여
+    // 실제 면접 진행 순서와 일치시킴
+    return answers.stream().sorted(Comparator.comparing(Answer::getQuestionSetId)).toList();
   }
 
   private Integer extractOrderFromQuestionSetId(Long questionSetId) {
