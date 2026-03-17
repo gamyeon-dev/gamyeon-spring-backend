@@ -4,6 +4,7 @@ import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlResult;
 import com.gamyeon.answer.application.port.in.IssueAnswerUploadUrlUseCase;
 import com.gamyeon.answer.application.port.in.RegisterAnswerResult;
 import com.gamyeon.answer.application.port.in.RegisterAnswerUseCase;
+import com.gamyeon.answer.application.port.in.RequestAnswerAnalysisCommand;
 import com.gamyeon.answer.application.port.in.RequestAnswerAnalysisUseCase;
 import com.gamyeon.answer.domain.AnswerSuccessCode;
 import com.gamyeon.common.response.ApiResponse;
@@ -57,7 +58,7 @@ public class AnswerController {
     userId = 1L;
 
     requestAnswerAnalysisUseCase.requestAnalysis(
-        new com.gamyeon.answer.application.port.in.RequestAnswerAnalysisCommand(userId, answerId));
+        new RequestAnswerAnalysisCommand(userId, answerId));
 
     return ApiResponse.success(AnswerSuccessCode.ANSWER_ANALYSIS_REQUESTED);
   }
