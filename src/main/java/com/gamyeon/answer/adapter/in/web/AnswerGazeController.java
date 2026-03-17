@@ -17,16 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class AnswerGazeController {
 
-    private final SendAnswerGazeSegmentUseCase sendAnswerGazeSegmentUseCase;
+  private final SendAnswerGazeSegmentUseCase sendAnswerGazeSegmentUseCase;
 
-    @PostMapping("/api/v1/intvs/{questionSetId}/gaze")
-    public ResponseEntity<ApiResponse<Void>> sendGazeSegment(
-            Long userId, @PathVariable Long questionSetId, @RequestBody JsonNode requestBody) {
-        log.info("body: {}", requestBody.toString());
-        userId = 1L;
-        sendAnswerGazeSegmentUseCase.send(
-                new com.gamyeon.answer.application.port.in.SendAnswerGazeSegmentCommand(
-                        userId, questionSetId, requestBody));
-        return ApiResponse.success(AnswerSuccessCode.ANSWER_GAZE_SEGMENT_RECEIVED);
-    }
+  @PostMapping("/api/v1/intvs/{questionSetId}/gaze")
+  public ResponseEntity<ApiResponse<Void>> sendGazeSegment(
+      Long userId, @PathVariable Long questionSetId, @RequestBody JsonNode requestBody) {
+    log.info("body: {}", requestBody.toString());
+    userId = 1L;
+    sendAnswerGazeSegmentUseCase.send(
+        new com.gamyeon.answer.application.port.in.SendAnswerGazeSegmentCommand(
+            userId, questionSetId, requestBody));
+    return ApiResponse.success(AnswerSuccessCode.ANSWER_GAZE_SEGMENT_RECEIVED);
+  }
 }
