@@ -11,7 +11,8 @@ public enum AnswerErrorCode implements ErrorCode {
   INVALID_CONTENT_TYPE(HttpStatus.BAD_REQUEST, "ANS-B002", "contentType은 video/mp4 여야 합니다."),
   INVALID_FILE_SIZE(HttpStatus.BAD_REQUEST, "ANS-B003", "파일 크기는 1바이트 이상이어야 합니다."),
   ANALYSIS_ALREADY_IN_PROGRESS(HttpStatus.CONFLICT, "ANS-C002", "해당 답변은 이미 STT 분석 중입니다."),
-  ANALYSIS_ALREADY_COMPLETED(HttpStatus.CONFLICT, "ANS-C003", "해당 답변은 이미 STT 분석이 완료되었습니다.");
+  ANALYSIS_ALREADY_COMPLETED(HttpStatus.CONFLICT, "ANS-C003", "해당 답변은 이미 STT 분석이 완료되었습니다."),
+  ANSWER_ANALYSIS_REQUEST_FAILED(HttpStatus.BAD_REQUEST, "ANS-N002", "STT 분석 요청에 실패했습니다.");
 
   private final HttpStatus status;
   private final String code;
