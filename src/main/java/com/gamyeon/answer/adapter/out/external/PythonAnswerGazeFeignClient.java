@@ -5,9 +5,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "pythonAnswerGazeClient", url = "${answer.gaze.base-url}")
+@FeignClient(name = "pythonAnswerGazeClient", url = "${ai.server.url}")
 public interface PythonAnswerGazeFeignClient {
 
-  @PostMapping("/internal/v1/gaze-batches")
-  void send(@RequestBody JsonNode request);
+    @PostMapping("/internal/v1/gaze-batches")
+    void send(@RequestBody JsonNode request);
 }
