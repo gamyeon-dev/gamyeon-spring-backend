@@ -1,6 +1,6 @@
 spring:
   application:
-    name: gamyeon-backend
+    name: GAMYEON-SPRING
   config:
     import: "optional:consul:"
   cloud:
