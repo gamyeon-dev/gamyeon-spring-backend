@@ -11,7 +11,9 @@ import com.gamyeon.intv.domain.Intv;
 import com.gamyeon.intv.domain.IntvErrorCode;
 import com.gamyeon.intv.domain.IntvException;
 import com.gamyeon.intv.domain.IntvRepository;
+import com.gamyeon.intv.domain.event.InterviewFinishedEvent;
 import com.gamyeon.preparation.application.port.in.PreparationUseCase;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,11 +24,15 @@ public class IntvApplicationService
 
   private final IntvRepository intvRepository;
   private final PreparationUseCase preparationUseCase;
+  private final ApplicationEventPublisher eventPublisher;
 
   public IntvApplicationService(
-      IntvRepository intvRepository, PreparationUseCase preparationUseCase) {
+      IntvRepository intvRepository,
+      PreparationUseCase preparationUseCase,
+      ApplicationEventPublisher eventPublisher) {
     this.intvRepository = intvRepository;
     this.preparationUseCase = preparationUseCase;
+    this.eventPublisher = eventPublisher;
   }
 
   @Override
@@ -68,6 +74,7 @@ public class IntvApplicationService
   public void finish(ChangeStateIntvCommand command) {
     Intv intv = getOwnedIntv(command.userId(), command.intvId());
     intv.finish();
+    eventPublisher.publishEvent(new InterviewFinishedEvent(intv.getId(), intv.getUserId()));
   }
 
   private Intv getOwnedIntv(Long userId, Long intvId) {

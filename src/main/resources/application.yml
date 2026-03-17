@@ -24,9 +24,14 @@ spring:
     properties:
       hibernate:
         format_sql: true
+  server:
+    port: 8080
+    callback-base-url: ${SPRING_SERVER_URL:http://localhost:8080}
 
-server:
-  port: 8080
+ai:
+  server:
+    url: ${AI_SERVER_URL:http://localhost:8000}
+
 
 jwt:
   access-token-expiry: 3600000

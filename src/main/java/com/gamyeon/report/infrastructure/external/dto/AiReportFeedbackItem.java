@@ -1,0 +1,30 @@
+package com.gamyeon.report.infrastructure.external.dto;
+
+import java.util.List;
+import lombok.Builder;
+import lombok.Getter;
+
+@Getter
+@Builder(toBuilder = true)
+public class AiReportFeedbackItem {
+
+  private Long questionSetId;
+  private String status;
+
+  private Integer reliability;
+  private Integer logicScore;
+  private Integer answerCompositionScore;
+  private Integer gazeScore;
+  private Integer timeScore;
+  private Integer answerDurationMs;
+  private Integer keywordCount;
+
+  private Integer index;
+  private String questionContent;
+  private String characteristic;
+  private String answerSummary;
+  private String strength;
+  private String improvement;
+
+  private List<String> feedbackBadges;
+}
