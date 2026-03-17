@@ -10,4 +10,3 @@ public interface PythonQuestionGenerationFeignClient {
   @PostMapping("/internal/v1/questions/generate")
   void requestGeneration(@RequestBody AiQuestionGenerationRequest request);
 }
-정
