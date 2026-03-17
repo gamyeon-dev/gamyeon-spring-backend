@@ -1,6 +1,6 @@
 spring:
   application:
-    name: GAMYEON-SPRING
+    name: gamyeon-backend
   config:
     import: "optional:consul:"
   cloud:
@@ -15,8 +15,8 @@ spring:
         data-key: data
       discovery:
         enabled: true
-        service-name: GAMYEON-SPRING
-        instance-id: ${application.name}:${random.value}
+        service-name: gamyeon-backend
+        instance-id: gamyeon-spring-server-${random.value}
         fail-fast: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
@@ -28,3 +28,7 @@ spring:
 jwt:
   access-token-expiry: 3600000
   refresh-token-expiry: 604800000
+
+ai:
+  server:
+    url: "http://agent-server:8000"
