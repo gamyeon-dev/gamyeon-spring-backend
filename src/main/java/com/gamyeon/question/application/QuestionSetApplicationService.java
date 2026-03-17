@@ -14,6 +14,8 @@ import com.gamyeon.question.application.port.out.LoadPreparationPort;
 import com.gamyeon.question.application.port.out.PreparationForQuestionGeneration;
 import com.gamyeon.question.domain.CommonQuestion;
 import com.gamyeon.question.domain.CommonQuestionRepository;
+import com.gamyeon.question.domain.QuestionErrorCode;
+import com.gamyeon.question.domain.QuestionException;
 import com.gamyeon.question.domain.QuestionSet;
 import com.gamyeon.question.domain.QuestionSetRepository;
 import java.util.ArrayList;
@@ -35,13 +37,16 @@ public class QuestionSetApplicationService
   private final LoadIntvPort loadIntvPort;
   private final GenerateCustomQuestionPort generateCustomQuestionPort;
 
-  // 어떤 intv에 저장할것인가?
   @Override
   public void generate(Long userId, Long intvId) {
 
     getOwnedIntv(userId, intvId);
     PreparationForQuestionGeneration preparation = loadPreparationPort.loadByIntvId(intvId);
-    generateCustomQuestionPort.request(preparation, "/internal/v1/questions/callback");
+    try {
+      generateCustomQuestionPort.request(preparation, "/internal/v1/questions/callback");
+    } catch (Exception e) {
+      create(new CreateQuestionSetCommand(intvId, "FAIL", List.of(), "AI server unavailable"));
+    }
   }
 
   @Override
@@ -50,6 +55,10 @@ public class QuestionSetApplicationService
     loadIntvPort
         .loadById(command.intvId())
         .orElseThrow(() -> new IntvException(IntvErrorCode.INTV_NOT_FOUND));
+
+    if (questionSetRepository.existsByIntvId(command.intvId())) {
+      throw new QuestionException(QuestionErrorCode.ALREADY_EXIST);
+    }
 
     // 맞춤 질문 0~4개 추출('FAIL' 이면 0으로 침)
     List<String> customQuestions;

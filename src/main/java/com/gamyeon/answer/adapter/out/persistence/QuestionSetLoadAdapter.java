@@ -1,7 +1,7 @@
 package com.gamyeon.answer.adapter.out.persistence;
 
 import com.gamyeon.answer.application.port.out.LoadQuestionSetPort;
-import com.gamyeon.question.infrastuctur.JpaQuestionSetRepository;
+import com.gamyeon.question.infrastucture.JpaQuestionSetRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 

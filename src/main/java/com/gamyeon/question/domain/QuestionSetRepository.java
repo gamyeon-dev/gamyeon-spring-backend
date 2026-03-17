@@ -7,4 +7,6 @@ public interface QuestionSetRepository {
   void saveAll(List<QuestionSet> questionSets);
 
   List<QuestionSet> getAllByIntvId(Long intvId);
+
+  boolean existsByIntvId(Long intvId);
 }
