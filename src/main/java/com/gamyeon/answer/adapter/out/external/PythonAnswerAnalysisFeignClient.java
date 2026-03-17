@@ -4,9 +4,9 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "pythonAnswerAnalysisClient", url = "${answer.analysis.base-url}")
+@FeignClient(name = "pythonAnswerAnalysisClient", url = "${ai.server.url}")
 public interface PythonAnswerAnalysisFeignClient {
 
-  @PostMapping("/internal/v1/answers/analyze")
-  void requestAnalysis(@RequestBody PythonAnswerAnalysisRequest request);
+    @PostMapping("/internal/v1/answers/analyze")
+    void requestAnalysis(@RequestBody PythonAnswerAnalysisRequest request);
 }
