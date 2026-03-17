@@ -7,11 +7,13 @@ import com.gamyeon.feedback.application.exception.QuestionSetNotFoundException;
 import com.gamyeon.feedback.application.port.in.FeedbackWebhookUseCase;
 import com.gamyeon.feedback.domain.Feedback;
 import com.gamyeon.feedback.domain.FeedbackStatus;
+import com.gamyeon.feedback.domain.event.FeedbackSavedEvent;
 import com.gamyeon.feedback.infrastructure.persistence.FeedbackPersistenceAdapter;
 import com.gamyeon.feedback.infrastructure.persistence.QuestionSetRepository;
 import com.gamyeon.feedback.infrastructure.web.dto.FeedbackWebhookRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class FeedbackWebhookService implements FeedbackWebhookUseCase {
   private final FeedbackPersistenceAdapter feedbackPersistence;
   private final QuestionSetRepository questionSetRepository; // QUESTION_SETS 조회용
   private final ObjectMapper objectMapper;
+  private final ApplicationEventPublisher eventPublisher;
 
   @Override
   @Transactional
@@ -56,8 +59,10 @@ public class FeedbackWebhookService implements FeedbackWebhookUseCase {
     feedbackPersistence.update(feedback);
     log.info("[Feedback] {} 업데이트 완료 | id={}", finalStatus, feedback.getId());
 
-    // ⑥ TODO: Report 모듈 이벤트 발행 (추후 구현)
-    // eventPublisher.publish(new FeedbackCompletedEvent(intvId, questionSetId));
+    // ⑥ 이벤트 발행 — Report 모듈이 구독
+    eventPublisher.publishEvent(new FeedbackSavedEvent(intvId, questionSetId, finalStatus));
+    log.info(
+        "[Feedback] FeedbackSavedEvent 발행 | intvId={}, questionSetId={}", intvId, questionSetId);
   }
 
   private String serialize(FeedbackWebhookRequest request) {
