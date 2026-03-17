@@ -18,4 +18,9 @@ public class QuestionSetRepositoryAdapter implements QuestionSetRepository {
   public void saveAll(List<QuestionSet> questionSets) {
     jpaQuestionSetRepository.saveAll(questionSets);
   }
+
+  @Override
+  public List<QuestionSet> getAllByIntvId(Long intvId) {
+    return jpaQuestionSetRepository.findAllByIntvId(intvId);
+  }
 }
