@@ -15,8 +15,8 @@ spring:
         data-key: data
       discovery:
         enabled: true
-        service-name: GAMYEON-SPRING
-        instance-id: ${application.name}:${random.value}
+        service-name: gamyeon-backend
+        instance-id: GAMYEON-SPRING-SERVER:${random.value}
         fail-fast: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
