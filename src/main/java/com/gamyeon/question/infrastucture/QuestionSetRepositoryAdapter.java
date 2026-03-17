@@ -1,4 +1,4 @@
-package com.gamyeon.question.infrastuctur;
+package com.gamyeon.question.infrastucture;
 
 import com.gamyeon.question.domain.QuestionSet;
 import com.gamyeon.question.domain.QuestionSetRepository;
@@ -22,5 +22,10 @@ public class QuestionSetRepositoryAdapter implements QuestionSetRepository {
   @Override
   public List<QuestionSet> getAllByIntvId(Long intvId) {
     return jpaQuestionSetRepository.findAllByIntvId(intvId);
+  }
+
+  @Override
+  public boolean existsByIntvId(Long intvId) {
+    return jpaQuestionSetRepository.existsByIntvId(intvId);
   }
 }
