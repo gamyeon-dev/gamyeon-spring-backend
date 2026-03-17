@@ -24,9 +24,11 @@ import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlPort;
 import com.gamyeon.common.storage.application.port.out.StoragePresignedUrlResult;
 import java.util.List;
 import java.util.Set;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 @Transactional
 public class AnswerApplicationService
@@ -64,6 +66,13 @@ public class AnswerApplicationService
   @Override
   @Transactional(readOnly = true)
   public IssueAnswerUploadUrlResult issueUploadUrl(IssueAnswerUploadUrlCommand command) {
+    log.info(
+        "Issuing answer upload URL. userId={}, questionSetId={}, originalFileName={}, contentType={}, fileSizeBytes={}",
+        command.userId(),
+        command.questionSetId(),
+        command.originalFileName(),
+        command.contentType(),
+        command.fileSizeBytes());
     validateVideoFile(command.originalFileName(), command.contentType());
     validateFileSize(command.fileSizeBytes());
 
@@ -87,6 +96,13 @@ public class AnswerApplicationService
 
   @Override
   public RegisterAnswerResult register(RegisterAnswerCommand command) {
+    log.info(
+        "Registering answer metadata. userId={}, intvId={}, questionSetId={}, originalFileName={}, fileKey={}",
+        command.userId(),
+        command.intvId(),
+        command.questionSetId(),
+        command.originalFileName(),
+        command.fileKey());
     answerRepository
         .findByQuestionSetId(command.questionSetId())
         .ifPresent(
@@ -113,6 +129,8 @@ public class AnswerApplicationService
 
   @Override
   public void requestAnalysis(RequestAnswerAnalysisCommand command) {
+    log.info(
+        "Requesting STT analysis. userId={}, answerId={}", command.userId(), command.answerId());
     Answer answer =
         answerRepository
             .findById(command.answerId())
@@ -134,13 +152,27 @@ public class AnswerApplicationService
 
     try {
       requestAnswerSttAnalysisPort.request(target);
+      log.info(
+          "STT analysis request accepted. answerId={}, questionSetId={}",
+          answer.getId(),
+          answer.getQuestionSetId());
     } catch (Exception e) {
+      log.error(
+          "STT analysis request failed. answerId={}, questionSetId={}",
+          answer.getId(),
+          answer.getQuestionSetId(),
+          e);
       throw new AnswerException(AnswerErrorCode.ANSWER_ANALYSIS_REQUEST_FAILED);
     }
   }
 
   @Override
   public void handle(HandleAnswerSttCallbackCommand command) {
+    log.info(
+        "Handling STT callback. questionId={}, hasError={}, correctedTranscriptLength={}",
+        command.questionId(),
+        command.errorMessage() != null && !command.errorMessage().isBlank(),
+        command.correctedTranscript() == null ? 0 : command.correctedTranscript().length());
     Answer answer =
         answerRepository
             .findByQuestionSetId(command.questionId())
@@ -149,11 +181,20 @@ public class AnswerApplicationService
     if (command.errorMessage() != null && !command.errorMessage().isBlank()) {
       answer.failStt(command.errorMessage());
       answerRepository.save(answer);
+      log.warn(
+          "STT callback reported failure. answerId={}, questionSetId={}, errorMessage={}",
+          answer.getId(),
+          answer.getQuestionSetId(),
+          command.errorMessage());
       return;
     }
 
     answer.completeStt(command.correctedTranscript());
     answerRepository.save(answer);
+    log.info(
+        "STT callback completed. answerId={}, questionSetId={}",
+        answer.getId(),
+        answer.getQuestionSetId());
   }
 
   private void validateVideoFile(String originalFileName, String contentType) {

@@ -7,6 +7,7 @@ import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlResul
 import com.gamyeon.preparation.application.port.in.UploadPreparationFileUrlUseCase;
 import com.gamyeon.preparation.domain.PreparationSuccessCode;
 import jakarta.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/preparations")
+@Slf4j
 public class PreparationController {
 
   private final PreparationFileUseCase preparationFileUseCase;
@@ -34,6 +36,11 @@ public class PreparationController {
       @PathVariable Long intvId,
       @Valid @RequestBody PreparationFileRegisterRequest request) {
     userId = 1L;
+    log.info(
+        "Received register preparation files request. userId={}, intvId={}, fileCount={}",
+        userId,
+        intvId,
+        request.files() == null ? 0 : request.files().size());
     Long finalUserId = userId;
     PreparationFilesRegisterResult result =
         preparationFileUseCase.registerFiles(
@@ -48,6 +55,13 @@ public class PreparationController {
   public ResponseEntity<ApiResponse<PreparationResponse>> issueUploadUrl(
       Long userId, @PathVariable Long intvId, @Valid @RequestBody PreparationRequest request) {
     userId = 1L;
+    log.info(
+        "Received preparation upload URL request. userId={}, intvId={}, fileType={}, originalFileName={}, fileSizeBytes={}",
+        userId,
+        intvId,
+        request.fileType(),
+        request.originalFileName(),
+        request.fileSizeBytes());
     UploadPreparationFileUrlResult result =
         uploadPreparationFileUrlUseCase.issueUploadUrl(request.toCommand(userId, intvId));
 

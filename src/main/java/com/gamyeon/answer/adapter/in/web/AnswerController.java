@@ -10,6 +10,7 @@ import com.gamyeon.answer.domain.AnswerSuccessCode;
 import com.gamyeon.common.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class AnswerController {
 
   private final IssueAnswerUploadUrlUseCase issueAnswerUploadUrlUseCase;
@@ -30,6 +32,13 @@ public class AnswerController {
       @PathVariable Long questionSetId,
       @Valid @RequestBody IssueAnswerUploadUrlRequest request) {
     userId = 1L;
+    log.info(
+        "Received issueUploadUrl request. userId={}, questionSetId={}, originalFileName={}, contentType={}, fileSizeBytes={}",
+        userId,
+        questionSetId,
+        request.originalFileName(),
+        request.contentType(),
+        request.fileSizeBytes());
 
     IssueAnswerUploadUrlResult result =
         issueAnswerUploadUrlUseCase.issueUploadUrl(request.toCommand(userId, questionSetId));
@@ -44,6 +53,13 @@ public class AnswerController {
       @PathVariable Long questionSetId,
       @Valid @RequestBody RegisterAnswerRequest request) {
     userId = 1L;
+    log.info(
+        "Received registerAnswer request. userId={}, intvId={}, questionSetId={}, originalFileName={}, fileKey={}",
+        userId,
+        request.intvId(),
+        questionSetId,
+        request.originalFileName(),
+        request.fileKey());
 
     RegisterAnswerResult result =
         registerAnswerUseCase.register(request.toCommand(userId, questionSetId));
@@ -56,6 +72,7 @@ public class AnswerController {
   public ResponseEntity<ApiResponse<Void>> requestAnalysis(
       Long userId, @PathVariable Long answerId) {
     userId = 1L;
+    log.info("Received requestAnalysis request. userId={}, answerId={}", userId, answerId);
 
     requestAnswerAnalysisUseCase.requestAnalysis(
         new RequestAnswerAnalysisCommand(userId, answerId));
