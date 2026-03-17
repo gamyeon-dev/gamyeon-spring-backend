@@ -4,7 +4,7 @@ import com.gamyeon.common.response.ApiResponse;
 import com.gamyeon.question.adaptor.in.dto.request.CallBackRequest;
 import com.gamyeon.question.application.port.in.CreateQuestionSetUseCase;
 import com.gamyeon.question.domain.QuestionSuccessCode;
-import com.gamyeon.question.infrastuctur.QuestionSetRepositoryAdapter;
+import com.gamyeon.question.infrastucture.QuestionSetRepositoryAdapter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

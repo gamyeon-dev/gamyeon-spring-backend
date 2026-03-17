@@ -1,4 +1,4 @@
-package com.gamyeon.question.infrastuctur;
+package com.gamyeon.question.infrastucture;
 
 import com.gamyeon.question.domain.CommonQuestion;
 import com.gamyeon.question.domain.CommonQuestionStatus;
