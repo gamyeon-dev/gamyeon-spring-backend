@@ -1,6 +1,6 @@
 spring:
   application:
-    name: gamyeon-backend
+    name: GAMYEON-SPRING
   config:
     import: "optional:consul:"
   cloud:
@@ -15,8 +15,8 @@ spring:
         data-key: data
       discovery:
         enabled: true
-        service-name: GAMYEON-BACKEND
-        instance-id: GAMYEON-BACKEND:${server.port}
+        service-name: GAMYEON-SPRING
+        instance-id: ${application.name}:${random.value}
         fail-fast: false
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
