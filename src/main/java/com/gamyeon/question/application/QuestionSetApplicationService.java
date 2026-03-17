@@ -5,6 +5,8 @@ import com.gamyeon.intv.domain.IntvErrorCode;
 import com.gamyeon.intv.domain.IntvException;
 import com.gamyeon.question.application.port.in.CreateQuestionSetCommand;
 import com.gamyeon.question.application.port.in.CreateQuestionSetUseCase;
+import com.gamyeon.question.application.port.in.GetQuestionSetResult;
+import com.gamyeon.question.application.port.in.GetQuestionSetUseCase;
 import com.gamyeon.question.application.port.in.RequestCustomQuestionUseCase;
 import com.gamyeon.question.application.port.out.GenerateCustomQuestionPort;
 import com.gamyeon.question.application.port.out.LoadIntvPort;
@@ -24,8 +26,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Transactional
 @RequiredArgsConstructor
-public class QuestionUseCaseSetApplicationService
-    implements RequestCustomQuestionUseCase, CreateQuestionSetUseCase {
+public class QuestionSetApplicationService
+    implements RequestCustomQuestionUseCase, CreateQuestionSetUseCase, GetQuestionSetUseCase {
 
   private final QuestionSetRepository questionSetRepository;
   private final CommonQuestionRepository commonQuestionRepository;
@@ -35,11 +37,11 @@ public class QuestionUseCaseSetApplicationService
 
   // 어떤 intv에 저장할것인가?
   @Override
-  public void create(Long userId, Long intvId) {
+  public void generate(Long userId, Long intvId) {
 
     getOwnedIntv(userId, intvId);
     PreparationForQuestionGeneration preparation = loadPreparationPort.loadByIntvId(intvId);
-    generateCustomQuestionPort.request(preparation, "/internal/v1/questions/generate");
+    generateCustomQuestionPort.request(preparation, "/internal/v1/questions/callback");
   }
 
   @Override
@@ -76,6 +78,16 @@ public class QuestionUseCaseSetApplicationService
             .toList();
 
     questionSetRepository.saveAll(questionSets);
+  }
+
+  @Override
+  public GetQuestionSetResult getQuestionSets(Long userId, Long intvId) {
+
+    Intv intv = getOwnedIntv(userId, intvId);
+
+    List<QuestionSet> questionSets = questionSetRepository.getAllByIntvId(intvId);
+
+    return GetQuestionSetResult.of(intv.getId(), questionSets);
   }
 
   private Intv getOwnedIntv(Long userId, Long intvId) {
