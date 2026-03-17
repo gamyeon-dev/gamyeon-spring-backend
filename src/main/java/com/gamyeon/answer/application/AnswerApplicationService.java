@@ -145,7 +145,8 @@ public class AnswerApplicationService
     String questionContent = loadQuestionSetPort.getQuestionContent(answer.getQuestionSetId());
 
     AnswerAnalysisTarget target =
-        new AnswerAnalysisTarget(answer.getQuestionSetId(), answer.getFileKey(), questionContent);
+        new AnswerAnalysisTarget(
+            answer.getIntvId(), answer.getQuestionSetId(), questionContent, answer.getFileKey());
 
     answer.markSttProcessing();
     answerRepository.save(answer);
