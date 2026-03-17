@@ -16,9 +16,10 @@ public class FeignAnswerAnalysisAdapter implements RequestAnswerSttAnalysisPort 
   @Override
   public void request(AnswerAnalysisTarget target) {
     log.info(
-        "Calling Python STT analysis API. questionId={}, fileKey={}",
-        target.questionId(),
-        target.fileKey());
+        "Calling Python STT analysis API. intvId={}, questionSetId={}, mediaFileKey={}",
+        target.intvId(),
+        target.questionSetId(),
+        target.mediaFileKey());
     pythonAnswerAnalysisFeignClient.requestAnalysis(PythonAnswerAnalysisRequest.from(target));
   }
 }
