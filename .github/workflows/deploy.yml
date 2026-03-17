@@ -26,6 +26,9 @@ jobs:
       # 빌드 및 테스트
       - name: Build and Test
         run: ./gradlew clean build
+        env:
+          DOCKER_HOST: unix:///var/run/docker.sock
+          TESTCONTAINERS_RYUK_DISABLED: true
 
   # 2. 배포 단계 (CD) - develop 브랜치일 때만 실행
   deploy:
