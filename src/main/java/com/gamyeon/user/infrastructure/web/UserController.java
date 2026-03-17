@@ -9,6 +9,7 @@ import com.gamyeon.user.domain.UserSuccessCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/users")
+@Slf4j
 public class UserController {
 
   private final UserUseCase userUseCase;
@@ -29,6 +31,7 @@ public class UserController {
 
   @GetMapping("/me")
   public ResponseEntity<SuccessResponse<UserResponse>> getMyInfo(@CurrentUserId Long userId) {
+    log.info("Received getMyInfo request. userId={}", userId);
 
     UserInfo userInfo = userUseCase.getMyInfo(userId);
     return ResponseEntity.ok(SuccessResponse.of(UserResponse.from(userInfo)));
@@ -37,6 +40,7 @@ public class UserController {
   @PatchMapping("/me/nickname")
   public ResponseEntity<SuccessResponse<UserResponse>> updateNickname(
       @CurrentUserId Long userId, @Valid @RequestBody NicknameUpdateRequest request) {
+    log.info("Received updateNickname request. userId={}, nickname={}", userId, request.nickname());
 
     NicknameUpdateCommand command = NicknameUpdateCommand.of(userId, request.nickname());
     UserInfo userInfo = userUseCase.updateNickname(command);
@@ -46,6 +50,7 @@ public class UserController {
 
   @DeleteMapping("/me")
   public ResponseEntity<SuccessResponse<Void>> withdraw(@CurrentUserId Long userId) {
+    log.info("Received withdraw request. userId={}", userId);
 
     userUseCase.withdraw(userId);
     return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_WITHDREW, null));

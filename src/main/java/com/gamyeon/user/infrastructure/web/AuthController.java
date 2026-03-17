@@ -11,6 +11,7 @@ import com.gamyeon.user.domain.OAuthProvider;
 import com.gamyeon.user.domain.UserSuccessCode;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/auth")
+@Slf4j
 public class AuthController {
 
   private final AuthUseCase authUseCase;
@@ -31,6 +33,7 @@ public class AuthController {
   @PostMapping("/login/{provider}")
   public ResponseEntity<SuccessResponse<LoginResponse>> login(
       @PathVariable String provider, @Valid @RequestBody LoginRequest request) {
+    log.info("Received login request. provider={}", provider);
 
     OAuthProvider oAuthProvider = parseProvider(provider);
     OAuthLoginCommand command = OAuthLoginCommand.of(oAuthProvider, request.authorizationCode());
@@ -42,6 +45,7 @@ public class AuthController {
   @PostMapping("/reissue")
   public ResponseEntity<SuccessResponse<LoginResponse>> reissue(
       @Valid @RequestBody ReissueRequest request) {
+    log.info("Received token reissue request.");
 
     LoginResult result = authUseCase.reissue(request.refreshToken());
     return ResponseEntity.ok(
@@ -50,6 +54,7 @@ public class AuthController {
 
   @PostMapping("/logout")
   public ResponseEntity<SuccessResponse<Void>> logout(@CurrentUserId Long userId) {
+    log.info("Received logout request. userId={}", userId);
 
     authUseCase.logout(userId);
     return ResponseEntity.ok(SuccessResponse.of(UserSuccessCode.USER_LOGOUT, null));

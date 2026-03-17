@@ -6,6 +6,7 @@ import com.gamyeon.dashboard.application.port.inbound.DailyStat;
 import com.gamyeon.dashboard.application.port.inbound.IntvStatsUseCase;
 import java.time.LocalDate;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/v1/intvs")
+@Slf4j
 public class IntvStatsController {
 
   private final IntvStatsUseCase intvStatsUseCase;
@@ -28,6 +30,11 @@ public class IntvStatsController {
       @CurrentUserId Long userId,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
       @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+    log.info(
+        "Received intv stats request. userId={}, startDate={}, endDate={}",
+        userId,
+        startDate,
+        endDate);
 
     List<DailyStat> stats = intvStatsUseCase.getIntvStats(userId, startDate, endDate);
     return ResponseEntity.ok(SuccessResponse.of(stats));

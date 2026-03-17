@@ -7,11 +7,13 @@ import com.gamyeon.answer.application.port.out.LoadQuestionSetPort;
 import com.gamyeon.answer.application.port.out.SendAnswerGazeToAiPort;
 import com.gamyeon.answer.domain.AnswerErrorCode;
 import com.gamyeon.answer.domain.AnswerException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional(readOnly = true)
+@Slf4j
 public class AnswerGazeApplicationService implements SendAnswerGazeSegmentUseCase {
 
   private final LoadQuestionSetPort loadQuestionSetPort;
@@ -25,6 +27,7 @@ public class AnswerGazeApplicationService implements SendAnswerGazeSegmentUseCas
 
   @Override
   public void send(SendAnswerGazeSegmentCommand command) {
+    log.info("Sending answer gaze segment. questionSetId={}", command.questionSetId());
     if (!loadQuestionSetPort.existsById(command.questionSetId())) {
       throw new AnswerException(AnswerErrorCode.QUESTION_SET_NOT_FOUND);
     }

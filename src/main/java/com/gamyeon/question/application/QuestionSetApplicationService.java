@@ -22,12 +22,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class QuestionSetApplicationService
     implements RequestCustomQuestionUseCase, CreateQuestionSetUseCase, GetQuestionSetUseCase {
 
@@ -39,18 +41,25 @@ public class QuestionSetApplicationService
 
   @Override
   public void generate(Long userId, Long intvId) {
+    log.info("Generating question set. userId={}, intvId={}", userId, intvId);
 
     getOwnedIntv(userId, intvId);
     PreparationForQuestionGeneration preparation = loadPreparationPort.loadByIntvId(intvId);
     try {
       generateCustomQuestionPort.request(preparation, "/internal/v1/questions/callback");
     } catch (Exception e) {
+      log.error("AI question generation request failed. intvId={}", intvId, e);
       create(new CreateQuestionSetCommand(intvId, "FAIL", List.of(), "AI server unavailable"));
     }
   }
 
   @Override
   public void create(CreateQuestionSetCommand command) {
+    log.info(
+        "Creating question set. intvId={}, status={}, customQuestionCount={}",
+        command.intvId(),
+        command.status(),
+        command.questions() == null ? 0 : command.questions().size());
 
     loadIntvPort
         .loadById(command.intvId())
@@ -87,10 +96,15 @@ public class QuestionSetApplicationService
             .toList();
 
     questionSetRepository.saveAll(questionSets);
+    log.info(
+        "Question set created. intvId={}, totalQuestionCount={}",
+        command.intvId(),
+        questionSets.size());
   }
 
   @Override
   public GetQuestionSetResult getQuestionSets(Long userId, Long intvId) {
+    log.info("Loading question sets. userId={}, intvId={}", userId, intvId);
 
     Intv intv = getOwnedIntv(userId, intvId);
 
