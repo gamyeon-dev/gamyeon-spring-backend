@@ -57,29 +57,6 @@ jobs:
           script: |
             cd /home/ec2-user/app
             
-            # Consul KV로 관리할 예정이므로 .env 생성 로직은 추후 제거
-            echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" > .env
-            echo "INTERNAL_API_KEY=${{ secrets.INTERNAL_API_KEY }}" >> .env
-            echo "KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}" >> .env
-            echo "KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}" >> .env
-            echo "KAKAO_REDIRECT_URI=${{ secrets.KAKAO_REDIRECT_URI }}" >> .env
-            echo "GOOGLE_CLIENT_ID=${{ secrets.GOOGLE_CLIENT_ID }}" >> .env
-            echo "GOOGLE_CLIENT_SECRET=${{ secrets.GOOGLE_CLIENT_SECRET }}" >> .env
-            echo "GOOGLE_REDIRECT_URI=${{ secrets.GOOGLE_REDIRECT_URI }}" >> .env
-            echo "SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }}" >> .env
-            echo "SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }}" >> .env
-            echo "SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }}" >> .env
-            echo "SPRING_JPA_HIBERNATE_DDL_AUTO=${{ secrets.SPRING_JPA_HIBERNATE_DDL_AUTO }}" >> .env
-            echo SPRING_DATASOURCE_URL=${{ secrets.SPRING_DATASOURCE_URL }} >> .env
-            echo SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} >> .env
-            echo SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} >> .env
-            echo SPRING_JPA_HIBERNATE_DDL_AUTO=${{ secrets.SPRING_JPA_HIBERNATE_DDL_AUTO }} >> .env
-            echo S3_BUCKET=${{ secrets.S3_BUCKET }} >> .env
-            echo S3_REGION=${{ secrets.S3_REGION }} >> .env
-            echo S3_PRESIGNED_DURATION_SECONDS=${{ secrets.S3_PRESIGNED_DURATION_SECONDS }} >> .env
-            echo S3_ACCESS_KEY=${{ secrets.S3_ACCESS_KEY }} >> .env
-            echo S3_SECRET_KEY=${{ secrets.S3_SECRET_KEY }} >> .env
-            
             # 컨테이너 중지 및 기존 이미지 삭제 (이미지 이름이 중복되어 충돌나는 것 방지)
             docker-compose down spring-server || true
             
