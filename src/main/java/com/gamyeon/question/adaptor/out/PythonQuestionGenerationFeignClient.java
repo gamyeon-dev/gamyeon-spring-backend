@@ -4,7 +4,7 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "pythonQuestionGenerationClient", url = "/internal/v1/questions/generate")
+@FeignClient(name = "pythonQuestionGenerationClient", url = "{question.generate.base-url}")
 public interface PythonQuestionGenerationFeignClient {
 
   @PostMapping("/internal/v1/questions/generate")

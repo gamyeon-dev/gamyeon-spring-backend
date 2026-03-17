@@ -11,6 +11,7 @@ import com.gamyeon.answer.application.port.in.RegisterAnswerUseCase;
 import com.gamyeon.answer.application.port.in.RequestAnswerAnalysisCommand;
 import com.gamyeon.answer.application.port.in.RequestAnswerAnalysisUseCase;
 import com.gamyeon.answer.application.port.out.AnswerAnalysisTarget;
+import com.gamyeon.answer.application.port.out.LoadQuestionSetPort;
 import com.gamyeon.answer.application.port.out.RequestAnswerSttAnalysisPort;
 import com.gamyeon.answer.domain.Answer;
 import com.gamyeon.answer.domain.AnswerErrorCode;
@@ -43,18 +44,21 @@ public class AnswerApplicationService
   private final StoragePresignedUrlPort storagePresignedUrlPort;
   private final RequestAnswerSttAnalysisPort requestAnswerSttAnalysisPort;
   private final AnswerAnalysisProperties answerAnalysisProperties;
+  private final LoadQuestionSetPort loadQuestionSetPort;
 
   public AnswerApplicationService(
       AnswerRepository answerRepository,
       StorageFileKeyGenerator storageFileKeyGenerator,
       StoragePresignedUrlPort storagePresignedUrlPort,
       RequestAnswerSttAnalysisPort requestAnswerSttAnalysisPort,
-      AnswerAnalysisProperties answerAnalysisProperties) {
+      AnswerAnalysisProperties answerAnalysisProperties,
+      LoadQuestionSetPort loadQuestionSetPort) {
     this.answerRepository = answerRepository;
     this.storageFileKeyGenerator = storageFileKeyGenerator;
     this.storagePresignedUrlPort = storagePresignedUrlPort;
     this.requestAnswerSttAnalysisPort = requestAnswerSttAnalysisPort;
     this.answerAnalysisProperties = answerAnalysisProperties;
+    this.loadQuestionSetPort = loadQuestionSetPort;
   }
 
   @Override
@@ -120,12 +124,19 @@ public class AnswerApplicationService
     if (answer.getStatus() == AnswerStatus.STT_COMPLETED) {
       throw new AnswerException(AnswerErrorCode.ANALYSIS_ALREADY_COMPLETED);
     }
+    String questionContent = loadQuestionSetPort.getQuestionContent(answer.getQuestionSetId());
+
+    AnswerAnalysisTarget target =
+        new AnswerAnalysisTarget(answer.getQuestionSetId(), answer.getFileKey(), questionContent);
 
     answer.markSttProcessing();
     answerRepository.save(answer);
 
-    requestAnswerSttAnalysisPort.request(
-        new AnswerAnalysisTarget(answer.getQuestionSetId(), answer.getFileKey()));
+    try {
+      requestAnswerSttAnalysisPort.request(target);
+    } catch (Exception e) {
+      throw new AnswerException(AnswerErrorCode.ANSWER_ANALYSIS_REQUEST_FAILED);
+    }
   }
 
   @Override
