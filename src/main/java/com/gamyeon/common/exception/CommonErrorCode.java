@@ -8,6 +8,7 @@ public enum CommonErrorCode implements ErrorCode {
   // ── V : Validation ────────────────────────────────
   INVALID_INPUT(HttpStatus.BAD_REQUEST, "입력값 유효성 검사에 실패했습니다.", "CMMN-V001"),
   MISSING_FIELD(HttpStatus.BAD_REQUEST, "필수 필드가 누락되었습니다.", "CMMN-V002"),
+  TYPE_MISMATCH(HttpStatus.BAD_REQUEST, "잘못된 파라미터 타입입니다.", "CMMN-V003"),
 
   // ── A : Auth ──────────────────────────────────────
   UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증이 필요합니다.", "CMMN-A001"),
