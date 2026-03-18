@@ -16,6 +16,7 @@ import com.gamyeon.report.infrastructure.web.dto.ReportListResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,6 +30,9 @@ public class ReportQueryService
   private final SaveReportPort saveReportPort;
   private final LoadIntvPort loadIntvPort;
   private final LoadAnswerPort loadAnswerPort;
+
+  @Value("${aws.s3.base-url}")
+  private String s3BaseUrl;
 
   // ── 목록 조회 ──────────────────────────────────────────────────────────────
 
@@ -88,6 +92,22 @@ public class ReportQueryService
 
   // ── report_data jsonb + Answer 미디어 파싱 ────────────────────────────────
 
+  private String buildFullMediaUrl(String fileKey) {
+    if (fileKey == null || fileKey.isBlank()) {
+      return null;
+    }
+    // 이미 완전한 URL 형태인 경우 그대로 반환 (방어 로직)
+    if (fileKey.startsWith("http://") || fileKey.startsWith("https://")) {
+      return fileKey;
+    }
+
+    // Base URL과 File Key 사이의 슬래시(/) 처리
+    String base = s3BaseUrl.endsWith("/") ? s3BaseUrl : s3BaseUrl + "/";
+    String key = fileKey.startsWith("/") ? fileKey.substring(1) : fileKey;
+
+    return base + key;
+  }
+
   @SuppressWarnings("unchecked")
   private ReportDetailResponse.ReportDetail parseReportData(Report report, List<Answer> answers) {
     if (report.getReportData() == null) return null;
@@ -132,7 +152,7 @@ public class ReportQueryService
                           .answerSummary((String) map.get("answerSummary"))
                           .feedbackBadges((List<String>) map.get("feedbackBadges"))
                           .feedback(feedback)
-                          .mediaUrl(answer != null ? answer.getFileUrl() : null)
+                          .mediaUrl(answer != null ? buildFullMediaUrl(answer.getFileUrl()) : null)
                           .build();
                     })
                 .toList();
