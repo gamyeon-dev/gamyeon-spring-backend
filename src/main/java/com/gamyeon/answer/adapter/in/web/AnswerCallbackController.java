@@ -20,7 +20,7 @@ public class AnswerCallbackController {
   private final HandleAnswerSttCallbackUseCase handleAnswerSttCallbackUseCase;
   private final ObjectMapper objectMapper;
 
-  @PostMapping("/internal/v1/answers/callback")
+  @PostMapping("/internal/v1/answers/stt/callback")
   public ResponseEntity<ApiResponse<Void>> handleSttCallback(
       @Valid @RequestBody AnswerSttCallbackRequest request) {
     log.info(
