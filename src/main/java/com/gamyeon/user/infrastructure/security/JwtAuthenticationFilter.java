@@ -1,8 +1,13 @@
 package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamyeon.common.exception.CommonErrorCode;
 import com.gamyeon.common.response.ApiResponse;
 import com.gamyeon.common.response.ErrorCode;
+import com.gamyeon.user.application.port.outbound.BlacklistedAccessTokenRepository;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,6 +16,8 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.springframework.http.MediaType;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -25,11 +32,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
           "/actuator/**");
 
   private final JwtProvider jwtProvider;
+  private final BlacklistedAccessTokenRepository blacklistedAccessTokenRepository;
   private final ObjectMapper objectMapper;
   private final AntPathMatcher pathMatcher = new AntPathMatcher();
 
-  public JwtAuthenticationFilter(JwtProvider jwtProvider, ObjectMapper objectMapper) {
+  public JwtAuthenticationFilter(
+      JwtProvider jwtProvider,
+      BlacklistedAccessTokenRepository blacklistedAccessTokenRepository,
+      ObjectMapper objectMapper) {
     this.jwtProvider = jwtProvider;
+    this.blacklistedAccessTokenRepository = blacklistedAccessTokenRepository;
     this.objectMapper = objectMapper;
   }
 
@@ -44,33 +56,38 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
       HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
       throws ServletException, IOException {
 
-    filterChain.doFilter(request, response);
+    String authHeader = request.getHeader("Authorization");
 
-    //    String authHeader = request.getHeader("Authorization");
-    //
-    //    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-    //      filterChain.doFilter(request, response);
-    //      return;
-    //    }
-    //
-    //    String token = authHeader.substring(7);
-    //
-    //    try {
-    //      Long userId = jwtProvider.getUserId(token);
-    //      String email = jwtProvider.getEmail(token);
-    //
-    //      UsernamePasswordAuthenticationToken auth =
-    //          new UsernamePasswordAuthenticationToken(userId, null, List.of());
-    //      auth.setDetails(email);
-    //      SecurityContextHolder.getContext().setAuthentication(auth);
-    //
-    //      filterChain.doFilter(request, response);
-    //
-    //    } catch (ExpiredJwtException e) {
-    //      writeError(response, CommonErrorCode.EXPIRED_TOKEN);
-    //    } catch (JwtException | IllegalArgumentException e) {
-    //      writeError(response, CommonErrorCode.INVALID_TOKEN);
-    //    }
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+      writeError(response, CommonErrorCode.UNAUTHORIZED);
+      return;
+    }
+
+    String token = authHeader.substring(7);
+
+    try {
+      Claims claims = jwtProvider.getClaims(token);
+      String tokenId = claims.getId();
+      if (blacklistedAccessTokenRepository.existsByTokenId(tokenId)) {
+        writeError(response, CommonErrorCode.INVALID_TOKEN);
+        return;
+      }
+
+      Long userId = Long.parseLong(claims.getSubject());
+      String email = claims.get("email", String.class);
+
+      UsernamePasswordAuthenticationToken auth =
+          new UsernamePasswordAuthenticationToken(userId, null, List.of());
+      auth.setDetails(email);
+      SecurityContextHolder.getContext().setAuthentication(auth);
+
+      filterChain.doFilter(request, response);
+
+    } catch (ExpiredJwtException e) {
+      writeError(response, CommonErrorCode.EXPIRED_TOKEN);
+    } catch (JwtException | IllegalArgumentException e) {
+      writeError(response, CommonErrorCode.INVALID_TOKEN);
+    }
   }
 
   private void writeError(HttpServletResponse response, ErrorCode errorCode) throws IOException {

@@ -2,6 +2,7 @@ package com.gamyeon.user.infrastructure.di;
 
 import com.gamyeon.user.application.port.inbound.AuthUseCase;
 import com.gamyeon.user.application.port.inbound.UserUseCase;
+import com.gamyeon.user.application.port.outbound.BlacklistedAccessTokenRepository;
 import com.gamyeon.user.application.port.outbound.OAuthPort;
 import com.gamyeon.user.application.port.outbound.RefreshTokenRepository;
 import com.gamyeon.user.application.port.outbound.UserRepository;
@@ -45,11 +46,17 @@ public class UserConfig {
   public AuthUseCase authUseCase(
       UserRepository userRepository,
       RefreshTokenRepository refreshTokenRepository,
+      BlacklistedAccessTokenRepository blacklistedAccessTokenRepository,
       OAuthPort oAuthPort,
       JwtProvider jwtProvider,
       NicknameResolver nicknameResolver) {
     return new AuthService(
-        userRepository, refreshTokenRepository, oAuthPort, jwtProvider, nicknameResolver);
+        userRepository,
+        refreshTokenRepository,
+        blacklistedAccessTokenRepository,
+        oAuthPort,
+        jwtProvider,
+        nicknameResolver);
   }
 
   @Bean

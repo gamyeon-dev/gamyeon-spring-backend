@@ -6,5 +6,5 @@ public interface AuthUseCase {
 
   LoginResult reissue(String refreshToken);
 
-  void logout(Long userId);
+  void logout(Long userId, String accessToken);
 }
