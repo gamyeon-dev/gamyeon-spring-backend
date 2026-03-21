@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.Builder;
@@ -49,13 +50,16 @@ public class ReportDetailResponse {
     private Map<String, Integer> competencyScores;
 
     @JsonProperty("strengths")
-    private List<String> strengths;
+    @Builder.Default
+    private List<String> strengths = new ArrayList<>();
 
     @JsonProperty("weaknesses")
-    private List<String> weaknesses;
+    @Builder.Default
+    private List<String> weaknesses = new ArrayList<>();
 
     @JsonProperty("questionSummaries")
-    private List<QuestionSummary> questionSummaries;
+    @Builder.Default
+    private List<QuestionSummary> questionSummaries = new ArrayList<>();
   }
 
   @Getter
