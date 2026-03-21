@@ -6,20 +6,25 @@ import com.gamyeon.user.application.port.inbound.AuthUseCase;
 import com.gamyeon.user.application.port.inbound.LoginResult;
 import com.gamyeon.user.application.port.inbound.OAuthLoginCommand;
 import com.gamyeon.user.application.port.inbound.UserInfo;
+import com.gamyeon.user.application.port.outbound.BlacklistedAccessTokenRepository;
 import com.gamyeon.user.application.port.outbound.OAuthPort;
 import com.gamyeon.user.application.port.outbound.RefreshTokenRepository;
 import com.gamyeon.user.application.port.outbound.UserRepository;
+import com.gamyeon.user.domain.BlacklistedAccessToken;
 import com.gamyeon.user.domain.OAuthProvider;
 import com.gamyeon.user.domain.RefreshToken;
 import com.gamyeon.user.domain.User;
 import com.gamyeon.user.domain.UserDomainException;
 import com.gamyeon.user.domain.UserErrorCode;
 import com.gamyeon.user.infrastructure.security.JwtProvider;
+import io.jsonwebtoken.JwtException;
+import java.time.Instant;
 
 public class AuthService implements AuthUseCase {
 
   private final UserRepository userRepository;
   private final RefreshTokenRepository refreshTokenRepository;
+  private final BlacklistedAccessTokenRepository blacklistedAccessTokenRepository;
   private final OAuthPort oAuthPort;
   private final JwtProvider jwtProvider;
   private final NicknameResolver nicknameResolver;
@@ -27,11 +32,13 @@ public class AuthService implements AuthUseCase {
   public AuthService(
       UserRepository userRepository,
       RefreshTokenRepository refreshTokenRepository,
+      BlacklistedAccessTokenRepository blacklistedAccessTokenRepository,
       OAuthPort oAuthPort,
       JwtProvider jwtProvider,
       NicknameResolver nicknameResolver) {
     this.userRepository = userRepository;
     this.refreshTokenRepository = refreshTokenRepository;
+    this.blacklistedAccessTokenRepository = blacklistedAccessTokenRepository;
     this.oAuthPort = oAuthPort;
     this.jwtProvider = jwtProvider;
     this.nicknameResolver = nicknameResolver;
@@ -84,8 +91,22 @@ public class AuthService implements AuthUseCase {
     return issueTokens(user);
   }
 
-  public void logout(Long userId) {
+  public void logout(Long userId, String accessToken) {
     refreshTokenRepository.deleteByUserId(userId);
+
+    try {
+      Long tokenUserId = jwtProvider.getUserId(accessToken);
+      if (!userId.equals(tokenUserId)) {
+        throw new CommonException(CommonErrorCode.INVALID_TOKEN);
+      }
+
+      blacklistedAccessTokenRepository.deleteExpiredBefore(Instant.now());
+      blacklistedAccessTokenRepository.save(
+          BlacklistedAccessToken.create(
+              jwtProvider.getTokenId(accessToken), userId, jwtProvider.getExpiration(accessToken)));
+    } catch (JwtException | IllegalArgumentException e) {
+      throw new CommonException(CommonErrorCode.INVALID_TOKEN);
+    }
   }
 
   private String resolveEmail(OAuthProvider provider, OAuthPort.OAuthUserInfo userInfo) {
@@ -109,6 +130,8 @@ public class AuthService implements AuthUseCase {
   }
 
   private LoginResult issueTokens(User user) {
+    refreshTokenRepository.deleteByUserId(user.getId());
+
     String accessToken = jwtProvider.createAccessToken(user.getId(), user.getEmail());
     String refreshTokenValue = jwtProvider.createRefreshToken(user.getId());
 

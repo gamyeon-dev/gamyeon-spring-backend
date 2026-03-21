@@ -1,6 +1,7 @@
 package com.gamyeon.user.infrastructure.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.gamyeon.user.application.port.outbound.BlacklistedAccessTokenRepository;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -10,6 +11,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
@@ -19,14 +21,17 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 public class SecurityConfig {
 
   private final JwtProvider jwtProvider;
+  private final BlacklistedAccessTokenRepository blacklistedAccessTokenRepository;
   private final ObjectMapper objectMapper;
   private final String internalApiKey;
 
   public SecurityConfig(
       JwtProvider jwtProvider,
+      BlacklistedAccessTokenRepository blacklistedAccessTokenRepository,
       ObjectMapper objectMapper,
       @Value("${internal.api-key}") String internalApiKey) {
     this.jwtProvider = jwtProvider;
+    this.blacklistedAccessTokenRepository = blacklistedAccessTokenRepository;
     this.objectMapper = objectMapper;
     this.internalApiKey = internalApiKey;
   }
@@ -39,49 +44,34 @@ public class SecurityConfig {
         .cors(cors -> cors.configurationSource(corsConfigurationSource()))
         .authorizeHttpRequests(
             auth ->
-                auth
-
-                    //                        .requestMatchers("/api/v1/auth/login/**",
-                    // "/api/v1/auth/reissue").permitAll()
-                    //                        .requestMatchers("/api/internal/**").permitAll()
-                    //                        .requestMatchers("/api/v1/intvs/").permitAll()
-                    //                        .requestMatchers("/health",
-                    // "/actuator/**").permitAll()
-                    //                        .requestMatchers("/admin/**").hasRole("ADMIN")
-                    .anyRequest()
+                auth.requestMatchers("/api/v1/auth/login/**", "/api/v1/auth/reissue")
                     .permitAll()
-            //                                .authenticated()
-            );
-    //                .addFilterBefore(internalApiKeyFilter(),
-    // UsernamePasswordAuthenticationFilter.class)
-    //                .addFilterBefore(jwtAuthenticationFilter(),
-    // UsernamePasswordAuthenticationFilter.class);
-
+                    .requestMatchers("/internal/**")
+                    .permitAll()
+                    .requestMatchers("/health", "/actuator/**")
+                    .permitAll()
+                    .anyRequest()
+                    .authenticated())
+        .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
-  //    @Bean
-  //    public JwtAuthenticationFilter jwtAuthenticationFilter() {
-  //        return new JwtAuthenticationFilter(jwtProvider, objectMapper);
-  //    }
-  //
-  //    @Bean
-  //    public InternalApiKeyFilter internalApiKeyFilter() {
-  //        return new InternalApiKeyFilter(internalApiKey, objectMapper);
-  //    }
+  @Bean
+  public JwtAuthenticationFilter jwtAuthenticationFilter() {
+    return new JwtAuthenticationFilter(jwtProvider, blacklistedAccessTokenRepository, objectMapper);
+  }
+
+  @Bean
+  public InternalApiKeyFilter internalApiKeyFilter() {
+    return new InternalApiKeyFilter(internalApiKey, objectMapper);
+  }
 
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration config = new CorsConfiguration();
-    //    config.setAllowedOrigins(List.of("http://localhost:3000", "https://gamyeon.com"));
-    //    config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-    //    config.setAllowedHeaders(
-    //        List.of("Authorization", "Content-Type", "X-Requested-With", "X-Internal-API-Key"));
-
-    config.setAllowedOriginPatterns(List.of("*")); // 추가
-    config.setAllowedMethods(List.of("*")); // 추가
-    config.setAllowedHeaders(List.of("*")); // 추가
-
+    config.setAllowedOriginPatterns(List.of("*"));
+    config.setAllowedMethods(List.of("*"));
+    config.setAllowedHeaders(List.of("*"));
     config.setAllowCredentials(true);
     config.setMaxAge(3600L);
 

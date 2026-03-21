@@ -6,7 +6,9 @@ import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
 import java.util.Date;
+import java.util.UUID;
 import javax.crypto.SecretKey;
 
 public class JwtProvider {
@@ -24,6 +26,7 @@ public class JwtProvider {
   public String createAccessToken(Long userId, String email) {
     Date now = new Date();
     return Jwts.builder()
+        .id(UUID.randomUUID().toString())
         .subject(String.valueOf(userId))
         .claim("email", email)
         .issuedAt(now)
@@ -35,6 +38,7 @@ public class JwtProvider {
   public String createRefreshToken(Long userId) {
     Date now = new Date();
     return Jwts.builder()
+        .id(UUID.randomUUID().toString())
         .subject(String.valueOf(userId))
         .issuedAt(now)
         .expiration(new Date(now.getTime() + refreshTokenExpiry))
@@ -63,6 +67,14 @@ public class JwtProvider {
 
   public String getEmail(String token) {
     return getClaims(token).get("email", String.class);
+  }
+
+  public String getTokenId(String token) {
+    return getClaims(token).getId();
+  }
+
+  public Instant getExpiration(String token) {
+    return getClaims(token).getExpiration().toInstant();
   }
 
   public long getRefreshTokenExpiry() {
